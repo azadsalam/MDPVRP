@@ -29,23 +29,22 @@ public class Solver
 	
 	
 	public static int totalNumberofSingleRun = 1;
-	int aggregate_report_run_size=3;
+	public static double loadPenaltyFactor = 500;
+	public static double routeTimePenaltyFactor = 500;	
 	public static boolean singleRun = true;
-	public static boolean writeToExcel=false;
-	public static String[] instanceFiles={"benchmark/MDPVRP/pr10"	};
+	public static boolean writeToExcel=true;
+	public static String[] instanceFiles={"benchmark/PVRP/pr02"};
 
 	
 	//FOR OUTPUT TRACE //TEST ALGORITHM
 	static public boolean outputTrace = true;
-	
+	int aggregate_report_run_size=3;
 	public static boolean printFinalSolutionToFile=false; // output the final population in file
 	static public PrintWriter outputTraceWriter;
 	/////////FOR WEIGHTING SCHEME
 	static public int numberOfmutationOperator=10;
 	static public int episodeSize = 5;
 	////////////////
-	public static double loadPenaltyFactor = 1000;
-	public static double routeTimePenaltyFactor = 1000;
 	static public Visualiser visualiser;
 	public static boolean showViz=false;
 	public static boolean printProblemInstance= false;
@@ -202,8 +201,11 @@ public class Solver
 					problemInstance.print();
 				
 				if(showViz)
-					visualiser = new Visualiser("original/"+singleInputFileName.substring(0, singleInputFileName.length()-4),problemInstance);
-
+				{
+					String visInputFileName = "original/"+singleInputFileName.substring(singleInputFileName.indexOf("/")+1, singleInputFileName.length()); 
+					//System.out.println("Visual input file name : "+visInputFileName);
+					visualiser = new Visualiser(visInputFileName,problemInstance);
+				}
 				GeneticAlgorithm ga;
 				
 				
@@ -223,7 +225,6 @@ public class Solver
 				}
 				for(int i=0;i<Solver.totalNumberofSingleRun;i++)
 				{
-					
 					
 					if(!onTest)
 						ga = new Scheme6_with_normal_mutation(problemInstance);

@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 
 import Main.Solver;
 import Main.Utility;
+import Main.Visualiser;
+import Main.visualize;
 import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.Initialise_ClosestDepot_GreedyCut;
@@ -139,26 +141,19 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				parent1 = rouletteWheelSelection.getIndividual(population);
 				parent2 = fussSelection.getIndividual(population);
 				
-				offspring1 = new Individual(problemInstance);
-				//offspring2 = new Individual(problemInstance);
-				
-				//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);	
+				offspring1 = new Individual(problemInstance);				
 				Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
-				
 				mutation.applyMutation(offspring1);
-				//mutation.applyMutation(offspring2);
 				
 				offspringPopulation[i] = offspring1;
 				i++;
-/*				offspringPopulation[i] = offspring2;
-				i++;*/
 			}
 
 			TotalCostCalculator.calculateCostofPopulation(offspringPopulation, 0,NUMBER_OF_OFFSPRING, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
 			Utility.concatPopulation(parentOffspringTotalPopulation, population, offspringPopulation);
 			
 			
-			for(int p=0;p<parentOffspringTotalPopulation.length;p++)
+			/*for(int p=0;p<parentOffspringTotalPopulation.length;p++)
 			{
 				if(parentOffspringTotalPopulation[p].validationTest()==false)
 				{
@@ -169,7 +164,7 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 					return population[0];
 				}
 				
-			}
+			}*/
 						
 			localImprovement.initialise(parentOffspringTotalPopulation);
 			localImprovement.run(parentOffspringTotalPopulation);
@@ -185,12 +180,12 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				{
 					if(Individual.isDuplicate(problemInstance, parentOffspringTotalPopulation[p], parentOffspringTotalPopulation[p+1]))
 					{
-						parentOffspringTotalPopulation[p] = new Individual(problemInstance);
-						Initialise_ClosestDepot_GreedyCut.initialise(parentOffspringTotalPopulation[p]);
-						//.initialise_Closest_Depot_Greedy_Cut();
-						TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
+						//parentOffspringTotalPopulation[p] = new Individual(problemInstance);
+						//Initialise_ClosestDepot_GreedyCut.initialise(parentOffspringTotalPopulation[p]);
+						//TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
+						
 						//parentOffspringTotalPopulation[p].calculateCostAndPenalty();
-						//System.out.println("DUPLICATE");
+						System.out.println("DUPLICATE");
 					}
 				}
 				
@@ -319,6 +314,10 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 			Solver.outputTraceWriter.println("");
 			Solver.outputTraceWriter.flush();
 		}
+		
+
+		if(Solver.showViz)Solver.visualiser.drawIndividual(population[0], "Best");
+		
 		return population[0];
 
 	}
