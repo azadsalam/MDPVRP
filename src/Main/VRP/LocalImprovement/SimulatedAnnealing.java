@@ -173,7 +173,7 @@ class Scheduler
         {
                 this.k = 20;
                 this.lam = 0.045;
-                this.limit = 750;
+                this.limit = 400;
         }
 
         public double getTemp(int t) {

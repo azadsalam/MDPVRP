@@ -38,6 +38,7 @@ public class LocalImprovementBasedOnFussandElititst extends LocalImprovement
 		
 		
 		count = population.length / 3;
+		if(elitistCount>count) count=elitistCount;
 		//elitistCount = (int) (count * Solver.ServivorElitistRation);
 		selectionOperator = new FUSS();
 		selectionOperator.initialise(population, true);

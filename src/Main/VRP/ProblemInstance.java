@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import Main.Visualiser;
+
 
 public class ProblemInstance 
 {
@@ -16,7 +18,7 @@ public class ProblemInstance
 	public ArrayList<ArrayList<Integer>> vehiclesUnderThisDepot;
 	public double costMatrix[][];
 	public double travellingTimeMatrix[][];
-	
+	static public double[] dep_x,dep_y,cus_x,cus_y;
 	/**
 	 * kon vehicle kon depot er under a
 	 */
@@ -45,8 +47,7 @@ public class ProblemInstance
 		this.out = output;
 		
 		
-		periodCount = in.nextInt();
-		
+		periodCount = in.nextInt();		
 		escapeComment(in);
 		
 		depotCount = in.nextInt();
@@ -269,6 +270,10 @@ public class ProblemInstance
 		}
 		
 		
+		 dep_x=new double[depotCount];
+    	dep_y=new double[depotCount];
+    	cus_x=new double[customerCount];
+    	cus_y=new double[customerCount];
 		
 		if(type == 8 || type == 1) //PVRP & MDPVRP
 		{
@@ -315,8 +320,8 @@ public class ProblemInstance
 			double x = in.nextDouble();
 			double y = in.nextDouble();
 			
-			co_ordinates[depot][0] = x;
-			co_ordinates[depot][1] = y;
+			dep_x[depot] = co_ordinates[depot][0] = x;
+			dep_y[depot] = co_ordinates[depot][1] = y;
 			
 			escapeComment(in);
 		}
@@ -330,8 +335,8 @@ public class ProblemInstance
 			double x = in.nextDouble();
 			double y = in.nextDouble();
 			
-			co_ordinates[depotCount+client][0] = x;
-			co_ordinates[depotCount+client][1] = y;
+			cus_x[client] = co_ordinates[depotCount+client][0] = x;
+			cus_y[client] = co_ordinates[depotCount+client][1] = y;
 			
 			
 			serviceTime[client] = in.nextDouble();

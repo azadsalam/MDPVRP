@@ -5,6 +5,17 @@ import Main.Utility;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.RouteUtilities;
 
+/**
+ * Single route 
+ * <br/>
+ * Randomly selects a route,
+ * then randomly selects a client within the route, inserts it in a new position.
+ * <br> tries to insert it in every possible adjacent nodes
+ * <br> if new improved route found, return
+ * <br/> else return
+ * @author Azad
+ *
+ */
 public class IntraRouteGreedyInsertion 
 {
 	static int fail=0;

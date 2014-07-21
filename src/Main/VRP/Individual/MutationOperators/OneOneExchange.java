@@ -50,7 +50,7 @@ public class OneOneExchange
 		
 		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();
 		MinimumCostInsertionInfo newInfo;
-		min.cost=9999999;
+		min.increaseInCost=9999999;
 		
  			
 		ArrayList<Integer> route1 = individual.routes.get(period).get(vehicle1);

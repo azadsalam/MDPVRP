@@ -1,6 +1,7 @@
 package Main.VRP.Individual.MutationOperators;
 import java.util.ArrayList;
 
+import Main.Solver;
 import Main.Utility;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.MinimumCostInsertionInfo;
@@ -12,7 +13,7 @@ public class GreedyVehicleReAssignment
 	
 	/**
 	 * Randomly selects a client,period 
-	 * <br/>Inserts the client in the route, which cause minimum cost increase 
+	 * <br/>Inserts the client in the route, which cause minimum cost increase taking account of load violation
 	 * @param individual
 	 */
 	public static void mutate(Individual individual)
@@ -38,7 +39,8 @@ public class GreedyVehicleReAssignment
 	{
 		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();
 		MinimumCostInsertionInfo newInfo;
-		min.cost=9999999;
+		min.increaseInCost = Double.MAX_VALUE;
+		min.loadViolation = Double.MAX_VALUE;
 		
 		int assigendVehicle = RouteUtilities.assignedVehicle(individual, client, period, individual.problemInstance);
 		int position = individual.routes.get(period).get(assigendVehicle).indexOf(client);
@@ -46,15 +48,29 @@ public class GreedyVehicleReAssignment
 		//remove the client from route
 		individual.routes.get(period).get(assigendVehicle).remove(position);
 		
+		
 		for(int vehicle = 0;vehicle<individual.problemInstance.vehicleCount;vehicle++)
 		{
 			ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
+			
+			
 			newInfo= RouteUtilities.minimumCostInsertionPosition(individual.problemInstance, vehicle, client, route);
 			
-			if(newInfo.cost <= min.cost)
+			
+			double minCostContribution = min.increaseInCost + min.loadViolationContribution * Solver.loadPenaltyFactor ;
+			double newCostContribution = newInfo.increaseInCost + newInfo.loadViolationContribution * Solver.loadPenaltyFactor ;
+			
+			if(newCostContribution < minCostContribution)
 			{
-				min = newInfo;
+				min = newInfo;					
 			}
+			else if (newCostContribution == minCostContribution)
+			{
+				int coin = Utility.randomIntInclusive(1);
+				if(coin==1)
+					min=newInfo;
+			}
+			
 		}
 		//individual.problemInstance.out.println("Period : "+period+" vehicle : "+vehicle+" selected Client : "+selectedClient+" "+ " new Position : "+newIndex);
 		

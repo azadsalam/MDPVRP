@@ -6,19 +6,27 @@ import java.util.Arrays;
 import Main.Utility;
 import Main.VRP.ProblemInstance;
 
-public class Initialise_ClosestDepot_withNoLoadViolation_Uniform_cut {
+/*
+  -->> assigns the closest depot if no violation, if violation the next depot ...
+  	if every depot is full, assign the client to closest one
+  -->> assigns clients to vehicles until no violation
+  
+  */
+public class Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut {
 
+	
+	
 	public static void initiialise(Individual individual) 
 	{
 		// TODO Auto-generated method stub
 		//System.out.println("HERE");
 		InitialisePeriodAssigmentUniformly.initialise(individual);
-		bigClosestDepot_withNoLoadViolation_Uniform_cut(individual);
+		bigClosestDepot_withNoLoadViolation_greedy_cut(individual);
 		individual.calculateCostAndPenalty();
 	}
 
 
-	public static void bigClosestDepot_withNoLoadViolation_Uniform_cut(Individual individual)
+	public static void bigClosestDepot_withNoLoadViolation_greedy_cut(Individual individual)
 	{
 		ProblemInstance problemInstance = Individual.problemInstance;
 		//Assign customer to route
@@ -95,47 +103,10 @@ public class Initialise_ClosestDepot_withNoLoadViolation_Uniform_cut {
 					individual.insertIntoBigClosestDepotRoute(clientNo, closestDepots.get(0), period);
 				}
 				
-				//
 			}			
 		}
 		
-	/*	for(int period=0;period<problemInstance.periodCount;period++)
-		{
-			for(int depot=0;depot<problemInstance.depotCount;depot++)
-			{
-				System.out.print(" "+currentCapcityOfDepots[period][depot]);
-			}
-			System.out.println();
-		}
-	*/	
-		
-		/*Re insert all clients */
-	/*	for(int period=0; period<problemInstance.periodCount;period++)
-		{
-			for(int depot=0; depot<problemInstance.depotCount;depot++)
-			{
-				ArrayList<Integer> bigRoute = individual.bigRoutes.get(period).get(depot);		
 
-				//make a copy
-				ArrayList<Integer> copy = new ArrayList<Integer> ();
-				for(int i=0;i<bigRoute.size();i++)copy.add(bigRoute.get(i));
-				
-				//remove and add again every client serially  
-				for(int i=0; i<copy.size();i++)
-				{
-					int clientNo = copy.get(i);
-					
-					int index = bigRoute.indexOf(clientNo); //remove
-					bigRoute.remove(index);
-					
-					//insert again
-					MinimumCostInsertionInfo minPos = RouteUtilities.minimumCostInsertionPosition2(problemInstance, depot, clientNo, bigRoute);
-					bigRoute.add(minPos.insertPosition, clientNo);
-				}
-				
-			}
-		}
-*/		
 		//now cut the routes and distribute to vehicles
 		for(int period=0; period<problemInstance.periodCount;period++)
 		{
@@ -181,8 +152,7 @@ public class Initialise_ClosestDepot_withNoLoadViolation_Uniform_cut {
 		
 		if(!bigRoute.isEmpty())
 		{
-			
-			
+						
 			//System.out.println("LEFT : "+bigRoute.size());
 			while(!bigRoute.isEmpty())
 			{

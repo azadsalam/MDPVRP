@@ -28,10 +28,8 @@ public class Main
 						Solver.LocalImprovementElitistRation = Double.parseDouble(scan.next());
 					}*/
 					
-					for(int i=0;i<Solver.instanceFiles.length;i++)
-					{
-						solver.solve(Solver.instanceFiles[i]);
-					}
+					solver.solve();
+					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

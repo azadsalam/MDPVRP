@@ -10,16 +10,17 @@ import Main.VRP.GeneticAlgorithm.GeneticAlgorithm;
 import Main.VRP.GeneticAlgorithm.PopulationInitiator;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.Individual.Individual;
-import Main.VRP.Individual.Initialise_ClosestDepot_withNoLoadViolation_Uniform_cut;
+import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
+import Main.VRP.Individual.Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut;
 
 
 public class Tester_Initiator  implements GeneticAlgorithm
 {
 	PrintWriter out; 
 	
-	int POPULATION_SIZE = 1;
-	int NUMBER_OF_OFFSPRING = 1;
-	int NUMBER_OF_GENERATION = 1;
+	public static int POPULATION_SIZE = 100;
+	public static int NUMBER_OF_OFFSPRING = 1;
+	public static int NUMBER_OF_GENERATION = 1;
 	
 	ProblemInstance problemInstance;
 	Individual population[];
@@ -65,6 +66,16 @@ public class Tester_Initiator  implements GeneticAlgorithm
 		
 		System.out.println("IN INITIATOR TESTER");
 		initialisePopulation();
+
+		for(int i=0; i<POPULATION_SIZE; i++)
+		{
+			population[i] = new Individual(problemInstance);
+			Initialise_ClosestDepot_GENI_GreedyCut.initialise(population[i]);
+			//out.println("Printing Initial individual "+ i +" : \n");
+			TotalCostCalculator.calculateCost(population[i], loadPenaltyFactor, routeTimePenaltyFactor);
+			//population[i].print();
+		}
+
 		TotalCostCalculator.calculateCostofPopulation(population,0,POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
 		Utility.sort(population);
 
@@ -118,18 +129,6 @@ public class Tester_Initiator  implements GeneticAlgorithm
 	
 	void initialisePopulation()
 	{
-		Individual.calculateAssignmentProbalityForDiefferentDepot(problemInstance);
-		Individual.calculateProbalityForDiefferentVehicle(problemInstance);
-		//out.print("Initial population : \n");
-		for(int i=0; i<POPULATION_SIZE; i++)
-		{
-			population[i] = new Individual(problemInstance);
-			//population[i].initialise_Closest_Depot_Uniform_Cut();
-			Initialise_ClosestDepot_withNoLoadViolation_Uniform_cut.initiialise(population[i]);
-			out.println("Printing Initial individual "+ i +" : \n");
-			TotalCostCalculator.calculateCost(population[i], loadPenaltyFactor, routeTimePenaltyFactor);
-			population[i].print();
-		}
 	}
 
 	

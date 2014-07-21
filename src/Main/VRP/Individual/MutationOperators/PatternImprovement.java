@@ -120,14 +120,14 @@ public class PatternImprovement {
 
 		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();
 		MinimumCostInsertionInfo newInfo;
-		min.cost=9999999;
+		min.increaseInCost=9999999;
 		
 		for(int vehicle = 0;vehicle<Individual.problemInstance.vehicleCount;vehicle++)
 		{
 			ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
 			newInfo= RouteUtilities.minimumCostInsertionPosition(Individual.problemInstance, vehicle, client, route);
 			
-			if(newInfo.cost <= min.cost)
+			if(newInfo.increaseInCost <= min.increaseInCost)
 			{
 				min = newInfo;
 			}

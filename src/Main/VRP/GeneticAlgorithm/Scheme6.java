@@ -6,7 +6,7 @@ import Main.Solver;
 import Main.Utility;
 import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.Individual;
-import Main.VRP.Individual.Initialise_ClosestDepot_GreedyCut;
+import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
 import Main.VRP.Individual.Crossover.Crossover_Uniform_Uniform;
 import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_Crossover;
 import Main.VRP.LocalImprovement.FirstChoiceHillClimbing;
@@ -175,7 +175,7 @@ public class Scheme6 implements GeneticAlgorithm
 					if(Individual.isDuplicate(problemInstance, parentOffspringTotalPopulation[p], parentOffspringTotalPopulation[p+1]))
 					{
 						parentOffspringTotalPopulation[p] = new Individual(problemInstance);
-						Initialise_ClosestDepot_GreedyCut.initialise(parentOffspringTotalPopulation[p]);
+						Initialise_ClosestDepot_GENI_GreedyCut.initialise(parentOffspringTotalPopulation[p]);
 						//.initialise_Closest_Depot_Greedy_Cut();
 						TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], loadPenaltyFactor, routeTimePenaltyFactor);
 						//parentOffspringTotalPopulation[p].calculateCostAndPenalty();

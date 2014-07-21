@@ -54,14 +54,13 @@ public class RouteUtilities
 	 * returns the index in which the client can be inserted with minimum cost increase,
 	 *  should be used for big route, when the vehicles are still unassigned
 	 * @param problemInstance
-	 * @param vehicle
 	 * @param client
 	 * @param route
 	 * @return
 	 */
 	public static MinimumCostInsertionInfo minimumCostInsertionPosition2(ProblemInstance problemInstance,int depot,int client,ArrayList<Integer> route)
 	{
-		double min = 99999999;
+		double min = Double.MAX_VALUE;
 		int chosenInsertPosition =- 1;
 		double cost;
 		
@@ -75,7 +74,7 @@ public class RouteUtilities
 		//	route.add(client);	
 			
 			MinimumCostInsertionInfo info = new MinimumCostInsertionInfo();
-			info.cost = costMatrix[depot][depotCount+client] + costMatrix[depotCount+client][depot];
+			info.increaseInCost = costMatrix[depot][depotCount+client] + costMatrix[depotCount+client][depot];
 			info.insertPosition=0;
 			info.loadViolation= -1;
 			//info.vehicle = vehicle;
@@ -90,6 +89,7 @@ public class RouteUtilities
 			min=cost;
 			chosenInsertPosition = 0;
 		}
+		
 		
 		for(int insertPosition=1;insertPosition<route.size();insertPosition++)
 		{
@@ -113,7 +113,7 @@ public class RouteUtilities
 		}
 		
 		MinimumCostInsertionInfo info = new MinimumCostInsertionInfo();
-		info.cost = min;
+		info.increaseInCost = min;
 		info.insertPosition=chosenInsertPosition;
 		info.loadViolation= -1;
 		//info.vehicle = vehicle;
@@ -134,7 +134,7 @@ public class RouteUtilities
 	 */
 	public static MinimumCostInsertionInfo minimumCostInsertionPosition(ProblemInstance problemInstance,int vehicle,int client,ArrayList<Integer> route)
 	{
-		double min = 99999999;
+		double min = Double.MAX_VALUE;
 		int chosenInsertPosition =- 1;
 		double cost;
 		
@@ -145,12 +145,17 @@ public class RouteUtilities
 		
 		if(route.size()==0)
 		{
-		//	route.add(client);	
-			
+		//	route.add(client);				
 			MinimumCostInsertionInfo info = new MinimumCostInsertionInfo();
-			info.cost = costMatrix[depot][depotCount+client] + costMatrix[depotCount+client][depot];
+			
+			info.increaseInCost = costMatrix[depot][depotCount+client] + costMatrix[depotCount+client][depot];
 			info.insertPosition=0;
-			info.loadViolation= -1;
+			
+			info.loadViolation= problemInstance.demand[client] - problemInstance.loadCapacity[vehicle];
+			
+			if(info.loadViolation>0) info.loadViolationContribution = info.loadViolation;
+			else info.loadViolationContribution=0;
+			
 			info.vehicle = vehicle;
 			return info;
 		}
@@ -185,10 +190,34 @@ public class RouteUtilities
 			chosenInsertPosition = route.size();
 		}
 		
+		//calculate load violation
+		//calculate total load
+		double totalLoad=0,previousLoad=0;
+		
+		for(int i=0;i<route.size();i++)
+		{
+			int node = route.get(i);
+			previousLoad += problemInstance.demand[node];
+		}
+		totalLoad = previousLoad + problemInstance.demand[client];
+		
+		double vehicleCapacity = problemInstance.loadCapacity[vehicle];
+		double totalLoadViolation = totalLoad - vehicleCapacity;
+		
+		double loadViolationContribution=0;
+		if(previousLoad > vehicleCapacity) loadViolationContribution = problemInstance.demand[client];
+		else
+		{ 
+			if(totalLoadViolation>0)loadViolationContribution = totalLoadViolation;
+			else loadViolationContribution = 0;
+		} 
+		
+		
 		MinimumCostInsertionInfo info = new MinimumCostInsertionInfo();
-		info.cost = min;
-		info.insertPosition=chosenInsertPosition;
-		info.loadViolation= -1;
+		info.increaseInCost = min;
+		info.insertPosition = chosenInsertPosition;
+		info.loadViolation = totalLoadViolation;
+		info.loadViolationContribution = loadViolationContribution;
 		info.vehicle = vehicle;
 		return info;
 	

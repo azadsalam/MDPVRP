@@ -4,27 +4,28 @@ import java.util.ArrayList;
 
 import Main.Utility;
 import Main.VRP.ProblemInstance;
+import Main.VRP.Individual.MutationOperators.GENI;
 
-public class Initialise_ClosestDepot_GreedyCut 
+/*closest depot, greedy cut*/
+public class Initialise_ClosestDepot_GENI_GreedyCut 
 {
-
+	
+	
 	public static void initialise(Individual individual) 
 	{
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 		InitialisePeriodAssigmentUniformly.initialise(individual);
-		bigClosestDepotRouteWithGreedyCut(individual);
+		ClosestDepot_GENI_RouteWithGreedyCut(individual);
 		individual.calculateCostAndPenalty();
 	}
 
-	private static void bigClosestDepotRouteWithGreedyCut(Individual individual)
+	private static void ClosestDepot_GENI_RouteWithGreedyCut(Individual individual)
 	{
 		ProblemInstance problemInstance = individual.problemInstance;
 		//Assign customer to route
-		boolean[] clientMap = new boolean[problemInstance.customerCount];
 		
-		int assigned=0;
 		
+		//allocate array lists big routes
 		individual.bigRoutes = new ArrayList<ArrayList<ArrayList<Integer>>>();
 		
 		for(int period=0;period<problemInstance.periodCount;period++)
@@ -38,22 +39,7 @@ public class Initialise_ClosestDepot_GreedyCut
 		}
 		
 		//create big routes
-		while(assigned<problemInstance.customerCount)
-		{
-			int clientNo = Utility.randomIntInclusive(problemInstance.customerCount-1);
-			if(clientMap[clientNo]) continue;
-			clientMap[clientNo]=true;
-			assigned++;
-			
-			
-			for(int period=0;period<problemInstance.periodCount;period++)
-			{		
-				if(individual.periodAssignment[period][clientNo]==false)continue;
-
-				int depot = RouteUtilities.closestDepot(clientNo);	
-				individual.insertIntoBigClosestDepotRoute(clientNo, depot, period);
-			}			
-		}
+		GENI.initialiseBigRoute(individual);
 		
 		//now cut the routes and distribute to vehicles
 		for(int period=0; period<problemInstance.periodCount;period++)

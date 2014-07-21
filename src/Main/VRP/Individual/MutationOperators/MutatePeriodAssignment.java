@@ -115,7 +115,7 @@ public class MutatePeriodAssignment {
 
 		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();
 		MinimumCostInsertionInfo newInfo;
-		min.cost=9999999;
+		min.increaseInCost=9999999;
 		
 				
 		for(int vehicle = 0;vehicle<individual.problemInstance.vehicleCount;vehicle++)
@@ -123,7 +123,7 @@ public class MutatePeriodAssignment {
 			ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
 			newInfo= RouteUtilities.minimumCostInsertionPosition(individual.problemInstance, vehicle, client, route);
 			
-			if(newInfo.cost <= min.cost)
+			if(newInfo.increaseInCost <= min.increaseInCost)
 			{
 				min = newInfo;
 			}

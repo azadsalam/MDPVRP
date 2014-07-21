@@ -6,7 +6,7 @@ import Main.Solver;
 import Main.Utility;
 import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.Individual;
-import Main.VRP.Individual.Initialise_ClosestDepot_GreedyCut;
+import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
 import Main.VRP.Individual.Crossover.Crossover_Uniform_Uniform;
 import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_Crossover;
 import Main.VRP.LocalImprovement.FirstChoiceHillClimbing;
@@ -71,7 +71,7 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 		binaryTournament = new BinaryTournament();
 		survivalSelectionOperator = new FUSS(); 
 
-		localSearch = new FirstChoiceHillClimbing();
+		localSearch = new FirstChoiceHillClimbing(mutation);
 		localImprovement = new LocalImprovementBasedOnFussandElititst(loadPenaltyFactor, routeTimePenaltyFactor, localSearch, POPULATION_SIZE);	
 	}
 
@@ -179,7 +179,7 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 					{
 						parentOffspringTotalPopulation[p] = new Individual(problemInstance);
 //						parentOffspringTotalPopulation[p].initialise_Closest_Depot_Greedy_Cut();
-						Initialise_ClosestDepot_GreedyCut.initialise(parentOffspringTotalPopulation[p]);
+						Initialise_ClosestDepot_GENI_GreedyCut.initialise(parentOffspringTotalPopulation[p]);
 						TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], loadPenaltyFactor, routeTimePenaltyFactor);
 						//parentOffspringTotalPopulation[p].calculateCostAndPenalty();
 						//System.out.println("DUPLICATE");

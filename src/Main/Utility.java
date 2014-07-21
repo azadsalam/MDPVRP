@@ -10,7 +10,7 @@ public class Utility
 {
 	static Random randomGenerator = new Random(System.currentTimeMillis());
 	
-	//static Random randomGenerator = new Random(1);
+	//static Random randomGenerator = new Random(0);
 
 	static MyComparator mc = new MyComparator();
 	//returns a random numbor between [m,n] 
@@ -27,11 +27,24 @@ public class Utility
 		return m+random*(n-m);
 	}
 	
-	//[0,n]
+	/**
+	 * [0,n]
+	 * @param n
+	 * @return
+	 */
 	public static int randomIntInclusive(int n)
 	{
-		int random = randomGenerator.nextInt(n+1);
-		return random;
+		return  randomGenerator.nextInt(n+1);
+	}
+	
+	/**
+	 * [0,n-1]
+	 * @param n
+	 * @return
+	 */
+	public static int randomIntExclusive(int n)
+	{
+		return randomGenerator.nextInt(n);
 	}
 
 	/**

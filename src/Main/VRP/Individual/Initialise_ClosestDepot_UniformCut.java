@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import Main.Utility;
 import Main.VRP.ProblemInstance;
 
+/*
+ assign to closest depot,
+ cut big route uniformly
+ */
 public class Initialise_ClosestDepot_UniformCut {
 
 	public static void initiialise(Individual individual) 

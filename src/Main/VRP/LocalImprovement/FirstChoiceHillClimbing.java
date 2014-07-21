@@ -3,17 +3,18 @@ package Main.VRP.LocalImprovement;
 import Main.VRP.GeneticAlgorithm.Mutation;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.Individual.Individual;
+import Main.VRP.Individual.MutationOperators.MutationInterface;
 import Main.VRP.Individual.MutationOperators.Three_Opt;
 
 
 public class FirstChoiceHillClimbing extends LocalSearch {
 
-	Mutation mutaion;
+	MutationInterface mutaion;
 	
-	public FirstChoiceHillClimbing() {
+	public FirstChoiceHillClimbing(MutationInterface mutation) {
 		// TODO Auto-generated constructor stub
 		
-		mutaion = new Mutation();
+		this.mutaion = mutation;
 	}
 	@Override
 	public void improve(Individual initialNode, double loadPenaltyFactor, double routeTimePenaltyFactor) 
@@ -26,7 +27,7 @@ public class FirstChoiceHillClimbing extends LocalSearch {
 		Individual node,neighbour;
 		node = new Individual(initialNode);
 		
-		while(retry<7)
+		while(retry<5)
 		{			
 			neighbour = new Individual(node);
 			applyMutation(neighbour);

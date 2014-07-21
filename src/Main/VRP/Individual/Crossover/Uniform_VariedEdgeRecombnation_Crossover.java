@@ -1,5 +1,6 @@
 package Main.VRP.Individual.Crossover;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 import Main.Utility;
 import Main.VRP.ProblemInstance;
@@ -9,9 +10,34 @@ import Main.VRP.Individual.RouteUtilities;
 
 public class Uniform_VariedEdgeRecombnation_Crossover 
 {
+	
+	// option 1 => normal edge recombination variant, appends the node which has smallest neighbor set
+	// option 2 => greedy edge recombination variant, appends the node which has least cost with the previous node
+	private static final int NORMAL_VARIANT = 1;
+	private static final int GREEDY_VARIANT = 2;
+	
 	private static  int DEPOT; 
 	static ProblemInstance problemInstance;
+	
 	public static void crossOver_Uniform_VariedEdgeRecombination(ProblemInstance pi,Individual parent1,Individual parent2,Individual child)
+	{
+		initialise(pi, parent1, parent2, child);
+		
+		variedEdgeRecombinationCrossoverForRoutes(child, parent1, parent2, NORMAL_VARIANT);
+		//update cost and penalty
+		child.calculateCostAndPenalty();
+	}
+	
+	public static void crossOver_Uniform_VariedEdgeRecombination_cost_greedy(ProblemInstance pi,Individual parent1,Individual parent2,Individual child)
+	{
+		initialise(pi, parent1, parent2, child);
+			
+		variedEdgeRecombinationCrossoverForRoutes(child, parent1, parent2, GREEDY_VARIANT);
+		//update cost and penalty
+		child.calculateCostAndPenalty();
+	}
+	
+	private static void initialise(ProblemInstance pi,Individual parent1,Individual parent2,Individual child) 
 	{
 		problemInstance = pi;
 		DEPOT = problemInstance.customerCount;
@@ -26,13 +52,11 @@ public class Uniform_VariedEdgeRecombnation_Crossover
 		}
 		
 		UniformCrossoverPeriodAssigment.uniformCrossoverForPeriodAssignment(child,parent1, parent2,problemInstance);
-		variedEdgeRecombinationCrossoverForRoutes(child, parent1, parent2);
-		//update cost and penalty
-		child.calculateCostAndPenalty();
+		
 	}
 
 	
-	private static void variedEdgeRecombinationCrossoverForRoutes(Individual child, Individual parent1, Individual parent2)
+	private static void variedEdgeRecombinationCrossoverForRoutes(Individual child, Individual parent1, Individual parent2,int option)
 	{
 		int coin;
 
@@ -65,7 +89,6 @@ public class Uniform_VariedEdgeRecombnation_Crossover
 			}
 			
 			
-			
 			assignClientToVehicle(child,parent1,parent2,assignedVehicle, numberOfCustomerServed,period);
 			createAdjacencyList(adjacencyList, vehicleAdjacencyList, period, assignedVehicle,child,parent1,parent2);
 			
@@ -91,7 +114,7 @@ public class Uniform_VariedEdgeRecombnation_Crossover
 			
 			for(int vehicle=0;vehicle<problemInstance.vehicleCount;vehicle++)
 			{
-				createRoute(parent1, parent2, child, adjacencyList, vehicleAdjacencyList,numberOfCustomerServed,vehicle, period, assignedVehicle);
+				createRoute(parent1, parent2, child, adjacencyList, vehicleAdjacencyList,numberOfCustomerServed,vehicle, period, assignedVehicle, option);
 			}
 			
 
@@ -100,15 +123,15 @@ public class Uniform_VariedEdgeRecombnation_Crossover
 	
 	private static void createRoute(Individual parent1,Individual parent2,Individual child, 
 			ArrayList<ArrayList<Integer>> adjacencyList, ArrayList<ArrayList<Integer>> vehicleAdjacencyList, int[] numberOfCustomerServed,
-		    int vehicle, int period, int[] assignedVehicle ) 
+		    int vehicle, int period, int[] assignedVehicle, int option ) 
 	{
-		
 		
 		adjacencyList.add(new ArrayList<Integer>());
 		
 		for(int i=0;i<vehicleAdjacencyList.get(vehicle).size();i++)
 			adjacencyList.get(problemInstance.customerCount).add(vehicleAdjacencyList.get(vehicle).get(i));
 		
+		int assignedDepot = problemInstance.depotAllocation[vehicle];
 		int clientsUnderThisVehicle  = numberOfCustomerServed[vehicle];
 			
 		int currentNode = problemInstance.customerCount;
@@ -119,8 +142,8 @@ public class Uniform_VariedEdgeRecombnation_Crossover
 			if(currentNode != problemInstance.customerCount) route.add(currentNode);
 			
 			if(route.size()==clientsUnderThisVehicle) break; 
-			//now delete the node from adjacency list
 			
+			//now delete the node from adjacency list
 			for(int node=0;node < problemInstance.customerCount+1 ;node++)
 			{
 				adjacencyList.get(node).remove(new Integer(currentNode));
@@ -128,24 +151,58 @@ public class Uniform_VariedEdgeRecombnation_Crossover
 			
 			int nextNode=-1;
 			ArrayList<Integer> neigbourList = adjacencyList.get(currentNode);
+			
 			if(neigbourList.size() != 0)
 			{
+				//highest 4 neighbours ?
 				int min= 5;
-				
+				double minCost = Double.POSITIVE_INFINITY;
 				for(int j = 0;j<neigbourList.size();j++)
 				{
 					int neighbour = neigbourList.get(j);
-					int size = adjacencyList.get(neighbour).size();
 					
-					if(size < min)
+					if(option == NORMAL_VARIANT)
 					{
-						nextNode = neighbour;
-					}
-					else if(size == min)
-					{
-						int coin = Utility.randomIntInclusive(1);
-						if(coin==1)
+						// append the node with smallest adjacency list //
+						int size = adjacencyList.get(neighbour).size();
+						
+						if(size < min)
+						{
 							nextNode = neighbour;
+							min=size;
+						}
+						else if(size == min)
+						{
+							int coin = Utility.randomIntInclusive(1);
+							if(coin==1)
+								nextNode = neighbour;
+							
+						}
+					}
+					else if(option == GREEDY_VARIANT)
+					{
+						//find the closest neigbour
+						// if distance from current node to neighbour is less then minCost, nextNode=Neighbour
+						
+						int d  = problemInstance.depotCount;
+						double thisNeighbourDistance;
+						
+						if(currentNode != problemInstance.customerCount)
+							thisNeighbourDistance = problemInstance.costMatrix[(currentNode+d)][neighbour+d];
+						else
+							thisNeighbourDistance = problemInstance.costMatrix[assignedDepot][neighbour+d];
+						
+						if(thisNeighbourDistance < minCost)
+						{
+							nextNode = neighbour;
+							minCost=thisNeighbourDistance;
+						}
+						else if(thisNeighbourDistance == minCost)
+						{
+							int coin = Utility.randomIntInclusive(1);
+							if(coin==1)
+								nextNode = neighbour;
+						}	
 					}
 				}
 			}

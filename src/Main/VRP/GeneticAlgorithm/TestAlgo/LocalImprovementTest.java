@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import Main.Utility;
 import Main.VRP.ProblemInstance;
 import Main.VRP.GeneticAlgorithm.GeneticAlgorithm;
+import Main.VRP.GeneticAlgorithm.Mutation;
 import Main.VRP.GeneticAlgorithm.PopulationInitiator;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.Individual.Individual;
@@ -67,11 +68,13 @@ public class LocalImprovementTest  implements GeneticAlgorithm
 		
 		
 		
+		
+		
 		// INITIALISE POPULATION
 		PopulationInitiator.initialisePopulation(population, POPULATION_SIZE, problemInstance);
 		TotalCostCalculator.calculateCostofPopulation(population,0,POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
 	
-		LocalImprovement li = new LocalImprovementBasedOnFussandElititst(loadPenaltyFactor, routeTimePenaltyFactor, new FirstChoiceHillClimbing(),POPULATION_SIZE);
+		LocalImprovement li = new LocalImprovementBasedOnFussandElititst(loadPenaltyFactor, routeTimePenaltyFactor, new FirstChoiceHillClimbing(new Mutation()),POPULATION_SIZE);
 		
 		
 		double prev[] = new double[POPULATION_SIZE];

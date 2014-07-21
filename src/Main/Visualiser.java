@@ -43,7 +43,7 @@ public class Visualiser
 	static public double scaleMin;
 	static public double scaleMax;
     static ProblemInstance problemInstance;
-    static double[] dep_x,dep_y,cus_x,cus_y;
+    static public double[] dep_x,dep_y,cus_x,cus_y;
     static double center_x,center_y;
     static int[] d_x,d_y,c_x,c_y;
 
@@ -52,12 +52,11 @@ public class Visualiser
     static public int optionPanel_width = 400;
     static public int height = 650;
     static Window window;
-	String inputFileName=null;
+	
 	static public int selectedIndividual = -1;
-	public Visualiser(String string,ProblemInstance problemInstance) 
+	public Visualiser(ProblemInstance problemInstance) 
 	{
 		// TODO Auto-generated constructor stub
-		inputFileName = string;
 			
 		individuals = new ArrayList<Individual>();
 		names = new ArrayList<String>();
@@ -68,45 +67,23 @@ public class Visualiser
 		{
 			colors[i] = new Color(Utility.randomIntInclusive(255), Utility.randomIntInclusive(255), Utility.randomIntInclusive(255));
 		}
-		Scanner scanner=null;
-		try 
-		{
-			scanner = new Scanner(new File(inputFileName));
-		} 
-		catch (FileNotFoundException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
         this.problemInstance=problemInstance;
+        dep_x = problemInstance.dep_x;
+        dep_y = problemInstance.dep_y;
+        cus_x = problemInstance.cus_x;
+        cus_y = problemInstance.cus_y;
         
-        dep_x=new double[problemInstance.depotCount];
+/*        dep_x=new double[problemInstance.depotCount];
     	dep_y=new double[problemInstance.depotCount];
     	cus_x=new double[problemInstance.customerCount];
     	cus_y=new double[problemInstance.customerCount];
-    	
+*/    	
     	d_x=new int[problemInstance.depotCount];
     	d_y=new int[problemInstance.depotCount];
     	c_x=new int[problemInstance.customerCount];
     	c_y=new int[problemInstance.customerCount];
     	
-        for(int i=0;i<problemInstance.depotCount;i++)
-        {
-        	String line=scanner.nextLine();
-        	StringTokenizer tok=new StringTokenizer(line,", \t\n");
-        	tok.nextToken();
-        	dep_x[i]=Double.parseDouble(tok.nextToken());
-        	dep_y[i]=Double.parseDouble(tok.nextToken())*-1;
-        }
-        for(int i=0;i<problemInstance.customerCount;i++)
-        {
-        	String line=scanner.nextLine();
-        	StringTokenizer tok=new StringTokenizer(line,", \t\n");
-        	tok.nextToken();
-        	cus_x[i]= Double.parseDouble(tok.nextToken());
-        	cus_y[i]= Double.parseDouble(tok.nextToken())*-1;
-        }
         double max_x,max_y,min_x,min_y;
         
         max_x=Maximum(dep_x,cus_x);
@@ -148,6 +125,7 @@ public class Visualiser
 
                 window = new Window();
                 window.setVisible(true);
+                //Window.surface.repaint();
             }
         });
 	}
@@ -187,6 +165,7 @@ public class Visualiser
 		individuals.add(individual);
 		names.add(name);
 		window.optionsPanel.updateOptionPane();
+        //Window.surface.repaint();
 	}
 }
 
@@ -195,7 +174,8 @@ class Window extends JFrame {
 	static public Surface surface=null;  
     static public OptionsPanel optionsPanel; 
     
-    public Window() {
+    public Window() 
+    {
         setTitle("VISUALISING MDPVRP");
         setSize(Visualiser.window_width+18, Visualiser.height+40);
        // setResizable(false);
@@ -354,6 +334,7 @@ class OptionsPanel extends JPanel
 		{
 			individualCombo.addItem(Visualiser.names.get(i));
 			individualCombo.addActionListener(new IndividualComboActionListener());
+			Window.surface.repaint();
 		}
 
 	}
@@ -378,15 +359,17 @@ class OptionsPanel extends JPanel
 		routePanel.setBackground(null);
 		routePanel.setPreferredSize(new Dimension(Visualiser.optionPanel_width*8/10,Visualiser.height*3/10));
 		
+
 		for(int i=0;i<Visualiser.problemInstance.vehicleCount;i++)
 		{
 			vehicleCheckBox = new JCheckBox("Route "+i);
-			vehicleCheckBox.setSelected(false);
+			vehicleCheckBox.setSelected(true);
 			vehicleCheckBox.addItemListener(new RouteSelectionItemStateChanged());
 			routePanel.add(vehicleCheckBox);
+			//Window.surface.repaint();
 		}
-		
 		add(routePanel);
+
 		/////////////////////////////////////////////////////////////////////
 		
 		zoomSlider = new JSlider(JSlider.HORIZONTAL, 1,100 , 1);

@@ -1,0 +1,16 @@
+Report Generation Time , 05_07_2014_16_55_58
+Number Of Generation, Population Size, Offspring Population Size, LoadPenalty, RouteTime Penalty
+500, 25, 25, 200.000000, 200.000000
+
+
+Instance Name, Min, Avg, Max, Feasible 
+benchmark/MDVRP/p11, 4061.283233, 4107.627085, 4166.700367, 3 
+benchmark/MDVRP/p21, 5996.671647, 6144.923915, 6316.603836, 3 
+benchmark/MDVRP/pr05, 2765.548151, 2920.299169, 3137.865142, 3 
+benchmark/MDVRP/pr10, 3936.140810, 4112.692045, 4349.074845, 3 
+benchmark/MDPVRP/pr05, 5969.614930, 6060.278905, 6173.213455, 3 
+benchmark/MDPVRP/pr06, 7096.495891, 7192.159335, 7323.451322, 3 
+benchmark/MDPVRP/pr08, 6384.839109, 6565.637125, 6809.679230, 3 
+benchmark/MDPVRP/pr10, 10506.011816, 10666.996136, 10835.755439, 3 
+
+ELAPSED TIME : 198 minutes 36 seconds

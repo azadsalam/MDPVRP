@@ -38,60 +38,64 @@ public class Mutation implements MutationInterface
 		
 		if(selectedMutationOperator==0)
 		{
-			//greedy //intra
-			IntraRouteGreedyInsertion.mutate(offspring);
-		}
-		else if (selectedMutationOperator == 1)
-		{			
-			//greedy //inter
-			GreedyVehicleReAssignment.mutate(offspring);
-		}
-		else if (selectedMutationOperator == 2)
-		{
-			//random //inter
-			OneZeroExchange.mutate(offspring);
-//			offspring.mutateRouteWithInsertion();
-		}
-		else if (selectedMutationOperator == 3)
-		{
-			//random //intra
-			IntraRouteRandomInsertion.mutate(offspring);
-		}
-		else if (selectedMutationOperator == 4)
-		{
 			//intra       
 			Two_Opt.mutateRandomRoute(offspring);
 		}
+		else if (selectedMutationOperator == 1)
+		{			
+			//greedy       //intra	
+			Three_Opt.mutateRandomRoute(offspring);
+		}
+		else if (selectedMutationOperator == 2)
+		{
+			//greedy       //intra	
+			Or_Opt.mutateRandomRoute(offspring);
+		}
+		else if (selectedMutationOperator == 3)
+		{
+			//random //intra 
+			IntraRouteRandomInsertion.mutate(offspring); 
+		}
+
+		
+		else if (selectedMutationOperator == 4)
+		{
+			//greedy //inter
+			GreedyVehicleReAssignment.mutate(offspring);
+		}
 		else if (selectedMutationOperator == 5)
+		{
+			//random //inter
+			OneZeroExchange.mutate(offspring);
+		}
+		else if (selectedMutationOperator == 6)
 		{
 			//random+greedy       //inter
 			OneOneExchange.mutate(offspring);
 		}
-		else if (selectedMutationOperator == 6)
-		{
-			//greedy       //inra	
-			Or_Opt.mutateRandomRoute(offspring);
-		}
-		else if (selectedMutationOperator == 7)
-		{
-			//greedy       //inra	
-			Three_Opt.mutateRandomRoute(offspring);
-		}
 		
-		else if (selectedMutationOperator == 8)
+		
+		else if (selectedMutationOperator == 7)
 		{
 			//greedy       //inter period	
 			PatternImprovement.patternImprovement(offspring);
 		}
-		
 		else 
 		{
-			//random //inter
+			//random //inter period
 		   MutatePeriodAssignment.mutatePeriodAssignment(offspring);
 		}
 		
 		offspring.calculateCostAndPenalty();
 		
+		
+		//currently not used
+		
+
+
+		//greedy //intra
+		//IntraRouteGreedyInsertion.mutate(offspring);
+
 	}
 
 	@Override

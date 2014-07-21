@@ -2,6 +2,8 @@ package Main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 
 public class ExportToCSV 
@@ -23,8 +25,12 @@ public class ExportToCSV
 		
 		int lastIndex = inputFileName.lastIndexOf(".");
 		if(lastIndex==-1)lastIndex = inputFileName.length();
+		int firstIndex = inputFileName.indexOf("/");
 		
-		outputFile = new File(inputFileName.substring(0,lastIndex)+"_Solution_over_generation.csv");
+		String path = "reports/"+inputFileName.substring(firstIndex+1,lastIndex);
+		String timeStamp = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(Calendar.getInstance().getTime());
+		
+		outputFile = new File(path+"_"+timeStamp+"_Solution_over_generation.csv");
 		//output = new PrintWriter(System.out);//for console output
 		try 
 		{

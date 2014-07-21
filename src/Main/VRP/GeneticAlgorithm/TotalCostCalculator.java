@@ -44,8 +44,7 @@ public class TotalCostCalculator
 		//penalty *= (generation+1);
 		
 		individual.costWithPenalty = individual.cost + penalty;
-		
-		
+			
 	}
 	
 	

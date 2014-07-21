@@ -41,7 +41,7 @@ public class OneZeroExchange
 		
 		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();
 		MinimumCostInsertionInfo newInfo;
-		min.cost=9999999;
+		min.increaseInCost=9999999;
 		
 		//ei test er kono dorkar nai.. vehicle count 2 er kom hole ei operator call korar kono mane e nai
 		if(individual.problemInstance.vehicleCount<2) return false;

@@ -10,6 +10,7 @@ import java.util.Vector;
 
 import Main.Utility;
 import Main.VRP.ProblemInstance;
+import Main.VRP.Individual.MutationOperators.GENI;
 
 
 public class Individual 
@@ -48,7 +49,7 @@ public class Individual
 	public static ProblemInstance problemInstance;
 	
 	
-	ArrayList<ArrayList<ArrayList<Integer>>> bigRoutes;
+	public ArrayList<ArrayList<ArrayList<Integer>>> bigRoutes;
 	public Individual()
 	{
 		cost = -1;
@@ -255,10 +256,10 @@ public class Individual
 			
 			if(chosenRouteValid) //previously chosen route is valid / doesnt violate load constraint
 			{
-				if(minimumCostInsertionInfo.loadViolation<=0 && minimumCostInsertionInfo.cost<=min) //this one is also valid
+				if(minimumCostInsertionInfo.loadViolation<=0 && minimumCostInsertionInfo.increaseInCost<=min) //this one is also valid
 				{
 					chosenRouteValid = true;
-					min = minimumCostInsertionInfo.cost;
+					min = minimumCostInsertionInfo.increaseInCost;
 					chosenVehicle = vehicle;
 					chosenInsertPosition = minimumCostInsertionInfo.insertPosition;
 				}
@@ -267,10 +268,10 @@ public class Individual
 			{
 				//if this one is valid than select this
 				// if both are invalid take the one with less cost
-				if(minimumCostInsertionInfo.loadViolation<=0 || minimumCostInsertionInfo.cost < min)
+				if(minimumCostInsertionInfo.loadViolation<=0 || minimumCostInsertionInfo.increaseInCost < min)
 				{
 					chosenRouteValid = true;
-					min = minimumCostInsertionInfo.cost;
+					min = minimumCostInsertionInfo.increaseInCost;
 					chosenVehicle = vehicle;
 					chosenInsertPosition = minimumCostInsertionInfo.insertPosition;
 				}
@@ -328,7 +329,7 @@ public class Individual
 			cost = costMatrix[depot][depotCount+client] + costMatrix[depotCount+client][depot];
 						
 			minimumCostInfo.insertPosition=0;
-			minimumCostInfo.cost=cost;
+			minimumCostInfo.increaseInCost=cost;
 			minimumCostInfo.vehicle = vehicle;
 			minimumCostInfo.loadViolation = loadViolation;
 			return minimumCostInfo;
@@ -365,7 +366,7 @@ public class Individual
 		}
 			
 		minimumCostInfo.insertPosition=chosenInsertPosition;
-		minimumCostInfo.cost=min;
+		minimumCostInfo.increaseInCost=min;
 		minimumCostInfo.vehicle = vehicle;
 		minimumCostInfo.loadViolation = loadViolation;
 		return minimumCostInfo;
@@ -731,6 +732,34 @@ public class Individual
 		return costForPV;
 	}
 	
+	
+	public static double calculateCostOfRouteWithDepotAsANode(ArrayList<Integer> route, int assignedDepot)
+	{
+		int clientNode,previous;
+
+        
+		if(route.isEmpty())return 0;
+
+		double costForThisRoute = 0;
+		
+		route.add(route.get(0));
+		for(int i=1;i<route.size();i++)
+		{
+			clientNode = route.get(i);
+			previous = route.get(i-1);
+			
+			if(clientNode == GENI.DEPOT)
+				costForThisRoute += problemInstance.costMatrix[previous+problemInstance.depotCount][assignedDepot];
+			else if(previous == GENI.DEPOT)
+				costForThisRoute +=	problemInstance.costMatrix[assignedDepot][clientNode+problemInstance.depotCount];
+			else
+				costForThisRoute +=	problemInstance.costMatrix[previous+problemInstance.depotCount][clientNode+problemInstance.depotCount];
+
+		}
+		route.remove(route.size()-1);
+
+		return costForThisRoute;
+	}
 	public void print()
 	{
 		//if(problemInstance == null) System.out.println("OUT IS NULL");

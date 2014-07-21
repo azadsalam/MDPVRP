@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import Main.Utility;
 import Main.VRP.ProblemInstance;
 import Main.VRP.GeneticAlgorithm.GeneticAlgorithm;
+import Main.VRP.GeneticAlgorithm.Mutation;
 import Main.VRP.GeneticAlgorithm.PopulationInitiator;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.Individual.Individual;
@@ -63,7 +64,7 @@ public class LocalSearchTestAlgo  implements GeneticAlgorithm
 		
 		Individual parent1,parent2,offspring;
 
-		LocalSearch localSearch = new FirstChoiceHillClimbing();
+		LocalSearch localSearch = new FirstChoiceHillClimbing(new Mutation());
 		
 		// INITIALISE POPULATION
 		PopulationInitiator.initialisePopulation(population, POPULATION_SIZE, problemInstance);

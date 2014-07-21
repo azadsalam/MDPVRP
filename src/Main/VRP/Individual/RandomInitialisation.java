@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import Main.Utility;
 import Main.VRP.ProblemInstance;
+import Main.VRP.Individual.MutationOperators.Three_Opt;
 
 public class RandomInitialisation 
 {
@@ -38,22 +39,22 @@ public class RandomInitialisation
 
 		for(int vehicle=0;vehicle<problemInstance.vehicleCount;vehicle++)
 		{
-			ran = Utility.randomIntInclusive(3);
+//			ran = Utility.randomIntInclusive(3);
 
 			for(int period=0;period<problemInstance.periodCount;period++)
 			{		
 				ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
 
-				if(ran==0 || ran==1)   // knuth shuffle
+/*				if(ran==0 || ran==1)   // knuth shuffle
 				{
-					for( int i = route.size()-1;i>=1;i--)
+*/					for( int i = route.size()-1;i>=1;i--)
 				    {
 						int j = Utility.randomIntInclusive(0, i);
 						int tmp = route.get(j);
 						route.set(j, route.get(i));
 						route.set(i, tmp);
 				    } 
-				}
+/*				}
 				else if(ran==2)
 				{
 					for(int i=1;i<route.size();i++)
@@ -80,10 +81,20 @@ public class RandomInitialisation
 						}
 					}
 				}
-			}
+*/			}
 		}
 
+		for(int vehicle=0;vehicle<problemInstance.vehicleCount;vehicle++)
+		{
+			for(int period=0;period<problemInstance.periodCount;period++)
+			{		
+				//ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
+				Three_Opt.mutateRouteBy_Three_Opt(individual, period, vehicle);
+			}
+		}
+		
 		individual.calculateCostAndPenalty();
+		
 	}
 
 
