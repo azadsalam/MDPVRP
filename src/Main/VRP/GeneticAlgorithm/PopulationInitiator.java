@@ -20,17 +20,17 @@ public class PopulationInitiator
 			
 			//Initialise_ClosestDepotWithGreedyCut.initialise(population[i]);
 			
-			if(i%2==0)
+			/*if(i%2==0)
 				Initialise_ClosestDepot_GENI_GreedyCut.initialise(population[i]);
-			else
-				Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut.initiialise(population[i]);
+			else*/
+			//	Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut.initiialise(population[i]);
 			
-			/*if(i%3 == 0)
+			if(i%3 == 0)
 				RandomInitialisation.initialiseRandom(population[i]);
 			else if(i%3 == 1)
-				Initialise_ClosestDepot_UniformCut.initiialise(population[i]);
+				Initialise_ClosestDepot_GENI_GreedyCut.initialise(population[i]);
 			else if(i%3 == 2)
-				Initialise_ClosestDepot_GreedyCut.initialise(population[i]);*/
+				Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut.initiialise(population[i]);
 			
 			
 /*			else

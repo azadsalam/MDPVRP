@@ -2,6 +2,7 @@ package Main.VRP.Individual.MutationOperators;
 import java.util.ArrayList;
 
 import Main.Utility;
+import Main.VRP.GeneticAlgorithm.Mutation_Grouped;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.MinimumCostInsertionInfo;
 import Main.VRP.Individual.RouteUtilities;
@@ -20,38 +21,28 @@ public class OneZeroExchange
 	 */
 	public static void mutate(Individual individual)
 	{
-		int retry = 0;
+		//vehicle count 2 er kom hole ei operator call korar kono mane e nai
+		if(individual.problemInstance.vehicleCount<2) return;
+
 		int period,client;
-		boolean success=false;
 		do
 		{
 			period = Utility.randomIntInclusive(individual.problemInstance.periodCount-1);
-			client = Utility.randomIntInclusive(individual.problemInstance.customerCount-1);
+			client = Utility.randomIntInclusive(individual.problemInstance.customerCount-1);		
+		}while(individual.periodAssignment[period][client] == false);
+		
+		mutateVehicleAssignmentRandom(individual,period,client);
 
-			if(individual.periodAssignment[period][client] == false) continue;
-			success = mutateVehicleAssignmentRandom(individual,period,client);
-			retry++;
-			
-		}while(success==false && retry<3);
-		//System.out.println("InsertionMutationGreedy FAILED");
 	}
 	
-	private static boolean mutateVehicleAssignmentRandom(Individual individual,int period,int client)
+	private static void mutateVehicleAssignmentRandom(Individual individual,int period,int client)
 	{
 		
-		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();
-		MinimumCostInsertionInfo newInfo;
-		min.increaseInCost=9999999;
-		
-		//ei test er kono dorkar nai.. vehicle count 2 er kom hole ei operator call korar kono mane e nai
-		if(individual.problemInstance.vehicleCount<2) return false;
-			
 		int assigendVehicle = RouteUtilities.assignedVehicle(individual, client, period, individual.problemInstance);
 		int position = individual.routes.get(period).get(assigendVehicle).indexOf(client);
 		
-		//remove the client from route
-		individual.routes.get(period).get(assigendVehicle).remove(position);
-		
+		//remove the client from old route - with vehicle == assignedVehicle
+		individual.routes.get(period).get(assigendVehicle).remove(position);		
 	
 		int vehicle = assigendVehicle;		
 		while(vehicle==assigendVehicle)
@@ -60,15 +51,17 @@ public class OneZeroExchange
 		}
 		
 		ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
-		newInfo= RouteUtilities.minimumCostInsertionPosition(individual.problemInstance, vehicle, client, route);
+		MinimumCostInsertionInfo newInfo= RouteUtilities.minimumCostInsertionPosition(individual.problemInstance, vehicle, client, route);
 				
-		//individual.problemInstance.out.println("Period : "+period+" vehicle : "+vehicle+" selected Client : "+selectedClient+" "+ " new Position : "+newIndex);
 		
-		individual.routes.get(period).get(min.vehicle).add(min.insertPosition, client);
+		// add client to new route - with vehicle == vehicle
+		individual.routes.get(period).get(vehicle).add(newInfo.insertPosition, client);
 		
-		if(min.vehicle==assigendVehicle && min.insertPosition==position) return false;
-		else
-			return true;
+		//Mutation_Grouped.mutateRouteAssignment(individual, loadPenaltyFactor, routeTimePenaltyFactor)
+		
+		Mutation_Grouped.improveRoute(individual, period, assigendVehicle); //improveOldRoute
+		Mutation_Grouped.improveRoute(individual, period, vehicle); //improve new route
+		
 	}
 	
 

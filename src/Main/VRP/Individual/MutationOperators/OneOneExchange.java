@@ -2,6 +2,7 @@ package Main.VRP.Individual.MutationOperators;
 import java.util.ArrayList;
 
 import Main.Utility;
+import Main.VRP.GeneticAlgorithm.Mutation_Grouped;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.MinimumCostInsertionInfo;
 import Main.VRP.Individual.RouteUtilities;
@@ -35,12 +36,8 @@ public class OneOneExchange
 			
 			while(vehicle1==vehicle2) vehicle2 = Utility.randomIntInclusive(individual.problemInstance.vehicleCount-1);
 			
-			//if(individual.periodAssignment[period][vehicle1] == false || individual.periodAssignment[period][vehicle2] == false) continue;
-
-			success = one_one_exchange_with_min_cost_incrs_heuristic(individual,period,vehicle1,vehicle2);
-			
+			success = one_one_exchange_with_min_cost_incrs_heuristic(individual,period,vehicle1,vehicle2);			
 			retry++;
-			
 		}while(success==false  && retry<3);
 		//System.out.println("InsertionMutationGreedy FAILED");
 	}
@@ -48,11 +45,8 @@ public class OneOneExchange
 	private static boolean one_one_exchange_with_min_cost_incrs_heuristic(Individual individual,int period,int vehicle1, int vehicle2)
 	{
 		
-		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();
 		MinimumCostInsertionInfo newInfo;
-		min.increaseInCost=9999999;
-		
- 			
+			
 		ArrayList<Integer> route1 = individual.routes.get(period).get(vehicle1);
 		ArrayList<Integer> route2 = individual.routes.get(period).get(vehicle2);
 		int size1 = route1.size();
@@ -71,6 +65,9 @@ public class OneOneExchange
 		
 		newInfo= RouteUtilities.minimumCostInsertionPosition(Individual.problemInstance, vehicle1, client2, route1);
 		route1.add(newInfo.insertPosition, client2);
+		
+		Mutation_Grouped.improveRoute(individual, period, vehicle1);// improve route 1
+		Mutation_Grouped.improveRoute(individual, period, vehicle2);// improve route 2
 		
 		//individual.problemInstance.out.println("Period : "+period+" vehicle : "+vehicle+" selected Client : "+selectedClient+" "+ " new Position : "+newIndex);
 		return true;

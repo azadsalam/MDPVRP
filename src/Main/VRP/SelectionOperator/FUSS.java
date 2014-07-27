@@ -69,7 +69,6 @@ public class FUSS extends SelectionOperator
 	    if(i == population.length) return Utility.randomIntInclusive(0,i-1);
 	    else if( Math.abs(population[i].costWithPenalty - randomFitness) < Math.abs(population[i-1].costWithPenalty - randomFitness) )
 	    	return i;
-	    
 	    else
 	    	return (i-1);
 	    

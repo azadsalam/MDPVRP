@@ -8,8 +8,10 @@ import Main.VRP.Individual.Individual;
 
 public class Utility 
 {
-	static Random randomGenerator = new Random(System.currentTimeMillis());
-	
+	public static Random randomGenerator = new Random(System.currentTimeMillis());
+
+	//public static Random randomGenerator = new Random();
+
 	//static Random randomGenerator = new Random(0);
 
 	static MyComparator mc = new MyComparator();

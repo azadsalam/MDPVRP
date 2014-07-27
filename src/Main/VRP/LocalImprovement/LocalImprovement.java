@@ -1,20 +1,17 @@
 package Main.VRP.LocalImprovement;
 
+import Main.Solver;
 import Main.VRP.Individual.Individual;
 
 public abstract class LocalImprovement 
 {
 	public LocalSearch localSearch;
-	public double loadPenaltyFactor ;
-	public double routeTimePenaltyFactor ;
 	int count;
 	
-	public LocalImprovement(double loadPenaltyFactor, double routeTimePenaltyFactor,LocalSearch localSearch,int populationSize) 
+	public LocalImprovement(LocalSearch localSearch,int populationSize) 
 	{
 		// TODO Auto-generated constructor stub
-		this.loadPenaltyFactor = loadPenaltyFactor;
-		this.routeTimePenaltyFactor = routeTimePenaltyFactor;
-		this.localSearch = localSearch;
+			this.localSearch = localSearch;
 		count = populationSize/4 ;
 	}
 	public abstract void initialise(Individual[] population); 
@@ -35,7 +32,7 @@ public abstract class LocalImprovement
 		
 		for (int i = 0; i < count; i++) {
 			
-			localSearch.improve(selected[i], loadPenaltyFactor, routeTimePenaltyFactor);			
+			localSearch.improve(selected[i], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);			
 		}
 	}
 	

@@ -89,7 +89,7 @@ public class RandomInitialisation
 			for(int period=0;period<problemInstance.periodCount;period++)
 			{		
 				//ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
-				Three_Opt.mutateRouteBy_Three_Opt(individual, period, vehicle);
+				Three_Opt.mutateRouteBy_Three_Opt_with_first_better_move(individual, period, vehicle);
 			}
 		}
 		

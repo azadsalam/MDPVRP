@@ -1,8 +1,13 @@
 package Main.VRP.GeneticAlgorithm;
-import javax.swing.plaf.SliderUI;
+import java.util.ArrayList;
 
+import javax.swing.plaf.SliderUI;
+import javax.swing.text.Utilities;
+
+import Main.Solver;
 import Main.Utility;
 import Main.VRP.Individual.Individual;
+import Main.VRP.Individual.RouteUtilities;
 import Main.VRP.Individual.MutationOperators.IntraRouteRandomInsertion;
 import Main.VRP.Individual.MutationOperators.IntraRouteGreedyInsertion;
 import Main.VRP.Individual.MutationOperators.MutatePeriodAssignment;
@@ -37,6 +42,11 @@ public class Mutation_Grouped implements MutationInterface
 	
 	public void applyMutation(Individual offspring)
 	{
+		applyMutation(offspring,Solver.loadPenaltyFactor,Solver.routeTimePenaltyFactor);
+	}
+	
+	public void applyMutation(Individual offspring, double loadPenaltyFactor, double routeTimePenaltyFactor)
+	{
 		int totalCategory = 2;
 		if(offspring.problemInstance.periodCount==1)totalCategory-=1;
 		
@@ -44,16 +54,17 @@ public class Mutation_Grouped implements MutationInterface
 		
 		//System.out.println("MUTATION WITH GROUPING");
 		
-		if(selectedCategory==0) mutateRouteAssignment(offspring);
-		else mutatePeriodAssignment(offspring);
+		if(selectedCategory==0) mutateRouteAssignment(offspring,loadPenaltyFactor,routeTimePenaltyFactor);
+		else mutatePeriodAssignment(offspring,loadPenaltyFactor,routeTimePenaltyFactor);
 		
-		mutateRoute(offspring);
+		
+		int coin = Utility.randomIntInclusive(1);
+		if(coin==1)mutateRoute(offspring);
 		
 			
 		offspring.calculateCostAndPenalty();
-		
-	}
 
+	}
 	
 	public void mutateRoute(Individual offspring)
 	{
@@ -80,13 +91,14 @@ public class Mutation_Grouped implements MutationInterface
 			IntraRouteRandomInsertion.mutate(offspring); 
 		}		
 		
+
 		//not used currently
 		//greedy //intra
 		//IntraRouteGreedyInsertion.mutate(offspring);
 
 	}
 	
-	public void mutatePeriodAssignment(Individual offspring)
+	public void mutatePeriodAssignment(Individual offspring, double loadPenaltyFactor, double routeTimePenaltyFactor)
 	{
 		int totalOperators = 2;
 		int selectedMutationOperator = Utility.randomIntExclusive(totalOperators);
@@ -94,16 +106,16 @@ public class Mutation_Grouped implements MutationInterface
 		if (selectedMutationOperator == 0)
 		{
 			//greedy       //inter period	
-			PatternImprovement.patternImprovement(offspring);
+			PatternImprovement.patternImprovement(offspring,loadPenaltyFactor,routeTimePenaltyFactor);
 		}
 		else 
 		{
 			//random //inter period
-		    MutatePeriodAssignment.mutatePeriodAssignment(offspring);
+		    MutatePeriodAssignment.mutatePeriodAssignment(offspring,loadPenaltyFactor,routeTimePenaltyFactor);
 		}
 	}
 	
-	public void mutateRouteAssignment(Individual offspring)
+	public void mutateRouteAssignment(Individual offspring, double loadPenaltyFactor, double routeTimePenaltyFactor)
 	{
 		int totalOperators = 3;
 		int selectedMutationOperator = Utility.randomIntExclusive(totalOperators);
@@ -111,19 +123,19 @@ public class Mutation_Grouped implements MutationInterface
 		if (selectedMutationOperator == 0)
 		{
 			//greedy //inter
-			GreedyVehicleReAssignment.mutate(offspring);
+			GreedyVehicleReAssignment.mutate(offspring,loadPenaltyFactor,routeTimePenaltyFactor);
 		}
+		else if (selectedMutationOperator == 1)
+		{
+			//random+greedy       //inter
+			OneOneExchange.mutate(offspring);
+		}		
 		else if (selectedMutationOperator == 1)
 		{
 			//random //inter
 			OneZeroExchange.mutate(offspring);
 		}
-		else if (selectedMutationOperator == 2)
-		{
-			//random+greedy       //inter
-			OneOneExchange.mutate(offspring);
-		}
-		
+
 	}
 	
 	@Override
@@ -132,4 +144,34 @@ public class Mutation_Grouped implements MutationInterface
 		
 	}
 
+	
+	public static void improveRoute(Individual individual, int period, int vehicle)
+	{
+		
+		int coin = Utility.randomIntInclusive(1);
+		if(coin==1)Two_Opt.mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
+
+		/*
+		double cost,newCost;
+		do
+		{
+			cost = RouteUtilities.costForThisRoute(individual.problemInstance, individual.routes.get(period).get(vehicle), vehicle);
+			
+		*/	
+			/*int coin = Utility.randomIntInclusive(1);
+			if(coin==0)
+			{
+				Three_Opt.mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);
+				Or_Opt.mutateRouteBy_Or_Opt_withBestMove(individual, period, vehicle);
+			}
+			else
+			{
+				Or_Opt.mutateRouteBy_Or_Opt_withBestMove(individual, period, vehicle);
+				Three_Opt.mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);			
+			}*/
+		/*	
+			newCost = RouteUtilities.costForThisRoute(individual.problemInstance, individual.routes.get(period).get(vehicle), vehicle);
+		}while(newCost<cost);*/
+		
+	}
 }

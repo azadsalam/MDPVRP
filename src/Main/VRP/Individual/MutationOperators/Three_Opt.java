@@ -20,7 +20,7 @@ public class Three_Opt {
 			int vehicle = Utility.randomIntInclusive(problemInstance.vehicleCount-1);
 			
 			//mutateRouteBy_Or_Opt(individual, 0, 3);
-			mutateRouteBy_Three_Opt(individual, period, vehicle);
+			mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);
 			
 			//success = mutateRouteBy2_Opt(individual,period, vehicle);
 		//}while(success==false);
@@ -35,21 +35,85 @@ public class Three_Opt {
 		{
 			for(int vehicle = 0;vehicle<problemInstance.vehicleCount;vehicle++)
 			{
-				mutateRouteBy_Three_Opt(individual, period, vehicle);
+				mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);
 			}
 		}
 	}
 	
-	
+	/**
+	 * Repeatedly applies the best 3 opt move, until it gives a lower cost route
+	 * @param individual
+	 * @param period
+	 * @param vehicle
+	 * @return
+	 */
+	public static boolean mutateRouteBy_Three_Opt_with_best_move(Individual individual, int period, int vehicle)
+	{
+		ProblemInstance problemInstance = individual.problemInstance;
+		ArrayList<Integer> route;
+		ArrayList<ArrayList<Integer>> combinations = new ArrayList<ArrayList<Integer>>();
+		boolean improved = true;
+		while(improved)
+		{
+			route  = individual.routes.get(period).get(vehicle);
+			double oldCost = RouteUtilities.costForThisRoute(problemInstance, route, vehicle);
+			double bestCost = oldCost;
+			ArrayList<Integer> bestRoute = route;
+			
+			for(int i=0;i<route.size();i++) // i th node er previous edge
+			{
+				for(int j=i ; j<route.size();j++) // j th and k th node er porer edge
+				{
+					for(int k=j+1;k<route.size();k++)
+					{
+						double newCost;
+						int selected=-1;
+						combinations.add(combination1(i, j, k, route));
+						combinations.add(combination2(i, j, k, route));
+						combinations.add(combination3(i, j, k, route));
+						combinations.add(combination4(i, j, k, route));
+						
+						//System.out.println("\ncurrent "+" cost : "+cost);
+						for(int p=0;p<4;p++)
+						{
+							ArrayList<Integer> newRoute = combinations.get(p);
+							newCost = RouteUtilities.costForThisRoute(problemInstance, newRoute, vehicle);
+							//System.out.println("comb "+ p+" cost : "+costThis);
+							if(newCost<bestCost)
+							{
+								bestCost=newCost;
+								bestRoute = newRoute;
+							}
+							else if(newCost==bestCost)
+							{
+			            	   int coin = Utility.randomIntInclusive(1);
+			            	   if(coin==1) bestRoute = newRoute;	
+							}
+						}						
+					}
+				}
+			}
+			
+			if(bestRoute != route)
+			{
+				route.clear();
+				route.addAll(bestRoute);
+			}
+			
+			if(bestCost == oldCost) improved=false;			
+		}		
+		return true;
+	}
+
 
 	/**
-	 * 
+	 * Improves the selected route by repeated 3 opt moves(the first 3 opt moves that gives a better route)
 	 * @param individual
 	 * @param period
 	 * @param vehicle
 	 * @return false if cost is not decreased
  	 */
-	public static boolean mutateRouteBy_Three_Opt(Individual individual, int period, int vehicle)
+	public static boolean mutateRouteBy_Three_Opt_with_first_better_move(Individual individual, int period, int vehicle)
 	{
 		ProblemInstance problemInstance = individual.problemInstance;
 		ArrayList<Integer> route;

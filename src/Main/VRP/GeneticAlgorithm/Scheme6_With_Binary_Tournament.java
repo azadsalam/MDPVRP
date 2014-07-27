@@ -26,8 +26,6 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 	public static int POPULATION_SIZE = 100; 
 	public static int NUMBER_OF_OFFSPRING = 100;   
 	public static int NUMBER_OF_GENERATION = 100;
-	public static double loadPenaltyFactor = 10;
-	public static double routeTimePenaltyFactor = 10;
 	
 	//Algorithm data structures
 	Individual population[];

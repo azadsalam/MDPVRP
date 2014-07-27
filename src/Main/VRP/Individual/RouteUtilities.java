@@ -249,7 +249,13 @@ public class RouteUtilities
 		return costForPV;
 
 	}
-	
+	/**
+	 * Returns the cost of this route
+	 * @param problemInstance
+	 * @param route
+	 * @param vehicle
+	 * @return
+	 */
 	public static double costForThisRoute(ProblemInstance problemInstance, ArrayList<Integer> route, int vehicle)
 	{
 		int assignedDepot;		

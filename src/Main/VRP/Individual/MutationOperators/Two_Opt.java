@@ -11,15 +11,9 @@ public class Two_Opt {
 	public static void mutateRandomRoute(Individual individual)
 	{
 		ProblemInstance problemInstance = individual.problemInstance;
-		//boolean success = false;
-		//do
-		//{
-			int period = Utility.randomIntInclusive(problemInstance.periodCount-1);
-			int vehicle = Utility.randomIntInclusive(problemInstance.vehicleCount-1);
-			mutateRouteBy2_Opt(individual, period, vehicle);
-			
-			//success = mutateRouteBy2_Opt(individual,period, vehicle);
-		//}while(success==false);
+		int period = Utility.randomIntInclusive(problemInstance.periodCount-1);
+		int vehicle = Utility.randomIntInclusive(problemInstance.vehicleCount-1);
+		mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
 	}
 	
 	public static void onAllROute(Individual individual)
@@ -31,19 +25,19 @@ public class Two_Opt {
 		{
 			for(int vehicle = 0;vehicle<problemInstance.vehicleCount;vehicle++)
 			{
-				mutateRouteBy2_Opt(individual, period, vehicle);
+				mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
 			}
 		}
 	}
 	
 	/**
-	 * 
+	 * improves the route by repeatedly applying the first better 2-opt move
 	 * @param individual
 	 * @param period
 	 * @param vehicle
 	 * @return false if cost is not decreased
  	 */
-	public static boolean mutateRouteBy2_Opt(Individual individual, int period, int vehicle)
+	public static boolean mutateRouteBy2_Opt_with_FirstBetterCombination(Individual individual, int period, int vehicle)
 	{
 		ProblemInstance problemInstance = individual.problemInstance;
 		ArrayList<Integer> route;
@@ -94,6 +88,65 @@ public class Two_Opt {
 			retry = false;
 		 }
 		return true;
+	}
+
+	/**
+	 * improves the route by repeatedly applying the bestPossible 2-opt move, until the new route is better than the old one
+	 * @param individual
+	 * @param period
+	 * @param vehicle
+	 * @return
+	 */
+	public static boolean mutateRouteBy2_Opt_with_BestCombination(Individual individual, int period, int vehicle)
+	{
+		ProblemInstance problemInstance = individual.problemInstance;
+		ArrayList<Integer> route;
+				
+		boolean retry = true;
+
+		while(retry) 
+		{						
+			route = individual.routes.get(period).get(vehicle);
+			double old_distance = RouteUtilities.costForThisRoute(problemInstance, route, vehicle);
+			
+			double best_distance = old_distance;
+			ArrayList<Integer> bestRoute = route;
+			
+			for (int i = 0; i < route.size(); i++) 
+			{
+	           for (int k = i + 1; k < route.size(); k++) 
+	           {
+	               ArrayList<Integer> new_route = twoOptSwap(route, i, k);
+	               double new_distance = RouteUtilities.costForThisRoute(problemInstance, new_route, vehicle);
+	               //System.out.println(new_distance);
+	               if (new_distance < best_distance) 
+	               {
+	            	   //updateBestROute
+	            	   best_distance = new_distance;
+	            	   bestRoute = new_route;
+	               }
+	               else if(new_distance == best_distance)
+	               {
+	            	   int coin = Utility.randomIntInclusive(1);
+	            	   if(coin==1) bestRoute = new_route;
+	               }
+	           }
+	       }
+			
+			
+			if(route != bestRoute)
+			{
+				ArrayList<Integer> updatedRoute = individual.routes.get(period).get(vehicle);
+			    updatedRoute.clear();
+			   
+				for(int cur=0;cur<bestRoute.size();cur++)
+				{
+					updatedRoute.add(bestRoute.get(cur));
+				}
+			}
+			if(best_distance>=old_distance) retry=false; //no need to use > , it will never happen, as bestdistance is updated only when a better route is found
+		 }
+		 return true;
 	}
 
 	public static ArrayList<Integer> twoOptSwap(ArrayList<Integer> route, int i, int k) 

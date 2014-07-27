@@ -13,6 +13,7 @@ import Main.VRP.ProblemInstance;
 import Main.VRP.GeneticAlgorithm.GeneticAlgorithm;
 import Main.VRP.GeneticAlgorithm.Scheme6;
 import Main.VRP.GeneticAlgorithm.Scheme6_With_Binary_Tournament;
+import Main.VRP.GeneticAlgorithm.Scheme6_dynamic_penalty_factor;
 import Main.VRP.GeneticAlgorithm.Scheme6_with_normal_mutation;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.GeneticAlgorithm.bulkInitialization;
@@ -27,17 +28,19 @@ public class Solver
 {
 		
 	//public static int totalNumberofSingleRun = 1;
-	public static double loadPenaltyFactor = 100;
-	public static double routeTimePenaltyFactor = 100;	
+	public static double loadPenaltyFactor = 10;
+	public static double routeTimePenaltyFactor = 10;	
 	public static boolean singleRun = true;
 
-	int aggregate_report_run_size=3;
-	public static boolean writeToExcel=false;
+	int aggregate_report_run_size=1;
+	public static boolean writeToExcel=true;
 	public static boolean generateAggregatedReport=true;
 	public static boolean printEveryGeneration = true;
-	public static boolean printFinalSolutionToFile=false; // output the final population in file
+	public static boolean printFinalSolutionToFile=true; // output the final population in file
 	public static boolean showViz=false;
+	public static boolean checkForInvalidity=false;
 	
+	public static boolean improveRouteAfterInterRouteOperation= true;
 	
 	//all mdpvrp
 	/*public static String[] instanceFiles={"benchmark/MDPVRP/pr01","benchmark/MDPVRP/pr02","benchmark/MDPVRP/pr03"
@@ -47,14 +50,14 @@ public class Solver
 		};*/
 
 	// selected instances
-	public static String[] instanceFiles={"benchmark/MDVRP/p11","benchmark/MDVRP/p21"
+	/*public static String[] instanceFiles={"benchmark/MDVRP/p11","benchmark/MDVRP/p21"
 		,"benchmark/MDVRP/pr05","benchmark/MDVRP/pr10"
 		,"benchmark/MDPVRP/pr05","benchmark/MDPVRP/pr06"
 		,"benchmark/MDPVRP/pr08","benchmark/MDPVRP/pr10"
 		};
+	*/
 	
-	
-//	public static String[] instanceFiles={"benchmark/MDPVRP/pr01"};
+	public static String[] instanceFiles={"benchmark/MDPVRP/pr10"};
 	
 	//FOR OUTPUT TRACE //TEST ALGORITHM
 	static public boolean outputTrace = false; //prints solutions cost after each interval, runs multiple times
@@ -328,7 +331,8 @@ public class Solver
 			
 //			if(!onTest)
 			
-     		Scheme6_with_normal_mutation ga = new Scheme6_with_normal_mutation(problemInstance);
+			//Scheme6_dynamic_penalty_factor ga = new Scheme6_dynamic_penalty_factor(problemInstance);
+			Scheme6_with_normal_mutation ga = new Scheme6_with_normal_mutation(problemInstance);
 		//	Tester_Initiator ga = new Tester_Initiator(problemInstance);
 			
 			if(once && generateAggregatedReport)

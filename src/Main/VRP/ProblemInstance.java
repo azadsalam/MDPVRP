@@ -270,7 +270,7 @@ public class ProblemInstance
 		}
 		
 		
-		 dep_x=new double[depotCount];
+		dep_x=new double[depotCount];
     	dep_y=new double[depotCount];
     	cus_x=new double[customerCount];
     	cus_y=new double[customerCount];

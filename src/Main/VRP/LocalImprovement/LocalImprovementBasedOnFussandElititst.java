@@ -1,6 +1,7 @@
 package Main.VRP.LocalImprovement;
 
 import Main.Solver;
+import Main.Utility;
 import Main.VRP.Individual.Individual;
 import Main.VRP.SelectionOperator.FUSS;
 import Main.VRP.SelectionOperator.SelectionOperator;
@@ -8,11 +9,10 @@ import Main.VRP.SelectionOperator.SelectionOperator;
 
 public class LocalImprovementBasedOnFussandElititst extends LocalImprovement 
 {
-	public LocalImprovementBasedOnFussandElititst(double loadPenaltyFactor,
-			double routeTimePenaltyFactor, LocalSearch localSearch,
+	public LocalImprovementBasedOnFussandElititst(LocalSearch localSearch,
 			int populationSize) 
 	{
-		super(loadPenaltyFactor, routeTimePenaltyFactor, localSearch, populationSize);
+		super( localSearch, populationSize);
 		// TODO Auto-generated constructor stub
 		
 		//count = populationSize/4;
@@ -34,14 +34,11 @@ public class LocalImprovementBasedOnFussandElititst extends LocalImprovement
 		////////////////////////////////////////////////////////////////////////////////////////////////////////
 		elitistCount = (int)(population.length  * Solver.LocalImprovementElitistRation) ;
 		////////////////////////////////////////////////////////////////////////////////////////////////////////
-		
-		
-		
-		count = population.length / 3;
+		count = (int)(population.length*33.0/100);
 		if(elitistCount>count) count=elitistCount;
 		//elitistCount = (int) (count * Solver.ServivorElitistRation);
-		selectionOperator = new FUSS();
-		selectionOperator.initialise(population, true);
+		
+		Utility.sort(population);
 		
 		// TODO Auto-generated method stub
 		Individual selected[] = new Individual[count];
@@ -54,14 +51,23 @@ public class LocalImprovementBasedOnFussandElititst extends LocalImprovement
 			selected[i] = population[i];
 		}
 		
+		Individual[] newPop = new Individual[population.length - elitistCount];
+		
+		for(i=elitistCount;i<population.length;i++)
+		{
+			newPop[i-elitistCount] = population[i];
+		}
+		selectionOperator = new FUSS();
+		selectionOperator.initialise(newPop, true); // true= wont select same individual twice
+	
 		for(i=elitistCount;i<count;i++)
 		{
-			selected[i] = selectIndividualForImprovement(population);
+			selected[i] = selectIndividualForImprovement(newPop);
 			//System.out.print(" "+selected[i].costWithPenalty);
 			
 		}
 		for ( i = 0; i < count; i++) {
-			localSearch.improve(selected[i], loadPenaltyFactor, routeTimePenaltyFactor);			
+			localSearch.improve(selected[i], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);			
 		}
 
 	}
