@@ -1,0 +1,9 @@
+Report Generation Time , 31_08_2014_18_53_19
+Number Of Generation, Population Size, Offspring Population Size, LoadPenalty, RouteTime Penalty
+1, 1000, 1, 10.000000, 10.000000
+
+
+Instance Name, Min, Avg, Max, Feasible 
+benchmark/PVRP/p06, 901.393386, 901.393386, 901.393386, 1 
+
+ELAPSED TIME : 0 minutes 1 seconds

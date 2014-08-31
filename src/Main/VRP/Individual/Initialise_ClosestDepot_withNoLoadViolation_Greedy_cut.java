@@ -20,7 +20,8 @@ public class Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut {
 	{
 		// TODO Auto-generated method stub
 		//System.out.println("HERE");
-		InitialisePeriodAssigmentUniformly.initialise(individual);
+//		InitialisePeriodAssigmentUniformly.initialise(individual);
+		InitialisePeriodAssigmentWithHeuristic.initialise(individual);
 		bigClosestDepot_withNoLoadViolation_greedy_cut(individual);
 		individual.calculateCostAndPenalty();
 	}

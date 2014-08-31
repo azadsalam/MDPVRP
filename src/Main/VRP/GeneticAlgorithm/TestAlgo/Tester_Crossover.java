@@ -9,7 +9,7 @@ import Main.VRP.ProblemInstance;
 import Main.VRP.GeneticAlgorithm.GeneticAlgorithm;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.Individual.Individual;
-import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_Crossover;
+import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_GreedyCut;
 
 
 public class Tester_Crossover  implements GeneticAlgorithm
@@ -70,7 +70,7 @@ public class Tester_Crossover  implements GeneticAlgorithm
 		problemInstance.out.println("PARENT 2");
 		population[1].miniPrint();
 		
-		Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination(problemInstance, population[0], population[1],child );
+		Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, population[0], population[1],child );
 		
 		problemInstance.out.println("Child 1");
 		child.miniPrint();

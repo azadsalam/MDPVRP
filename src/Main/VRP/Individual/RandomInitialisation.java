@@ -45,43 +45,15 @@ public class RandomInitialisation
 			{		
 				ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
 
-/*				if(ran==0 || ran==1)   // knuth shuffle
-				{
-*/					for( int i = route.size()-1;i>=1;i--)
-				    {
-						int j = Utility.randomIntInclusive(0, i);
-						int tmp = route.get(j);
-						route.set(j, route.get(i));
-						route.set(i, tmp);
-				    } 
-/*				}
-				else if(ran==2)
-				{
-					for(int i=1;i<route.size();i++)
-					{
-						coin = Utility.randomIntInclusive(1);
-						if(coin==1)
-						{
-							int tmp = route.get(i-1);
-							route.set(i-1, route.get(i));
-							route.set(i, tmp);
-						}
-					}
-				}
-				else
-				{
-					for(int i=route.size()-1;i>0;i--)
-					{
-						coin = Utility.randomIntInclusive(1);
-						if(coin==1)
-						{
-							int tmp = route.get(i-1);
-							route.set(i-1, route.get(i));
-							route.set(i, tmp);
-						}
-					}
-				}
-*/			}
+				for( int i = route.size()-1;i>=1;i--)
+			    {
+					int j = Utility.randomIntInclusive(0, i);
+					int tmp = route.get(j);
+					route.set(j, route.get(i));
+					route.set(i, tmp);
+			    }
+				
+			}
 		}
 
 		for(int vehicle=0;vehicle<problemInstance.vehicleCount;vehicle++)

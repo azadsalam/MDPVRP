@@ -10,9 +10,9 @@ public class Utility
 {
 	public static Random randomGenerator = new Random(System.currentTimeMillis());
 
-	//public static Random randomGenerator = new Random();
+	//public static Random randomGenerator = new Random(0);
 
-	//static Random randomGenerator = new Random(0);
+//	static Random randomGenerator = new Random(0);
 
 	static MyComparator mc = new MyComparator();
 	//returns a random numbor between [m,n] 

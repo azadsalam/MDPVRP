@@ -27,7 +27,7 @@ public class FirstChoiceHillClimbing extends LocalSearch {
 		Individual node,neighbour;
 		node = new Individual(initialNode);
 		
-		while(retry<5)
+		while(retry<7)
 		{			
 			neighbour = new Individual(node);
 			applyMutation(neighbour);
@@ -45,7 +45,7 @@ public class FirstChoiceHillClimbing extends LocalSearch {
 			}
 		}
 		
-        Three_Opt.onAllROute(node);
+        //Three_Opt.onAllROute(node);
 		initialNode.copyIndividual(node);
 		
 	}

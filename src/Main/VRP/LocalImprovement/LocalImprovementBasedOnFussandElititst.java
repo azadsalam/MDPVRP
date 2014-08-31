@@ -9,10 +9,9 @@ import Main.VRP.SelectionOperator.SelectionOperator;
 
 public class LocalImprovementBasedOnFussandElititst extends LocalImprovement 
 {
-	public LocalImprovementBasedOnFussandElititst(LocalSearch localSearch,
-			int populationSize) 
+	public LocalImprovementBasedOnFussandElititst(LocalSearch localSearch) 
 	{
-		super( localSearch, populationSize);
+		super( localSearch);
 		// TODO Auto-generated constructor stub
 		
 		//count = populationSize/4;

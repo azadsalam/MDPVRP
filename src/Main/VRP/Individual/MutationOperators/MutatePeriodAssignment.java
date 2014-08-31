@@ -14,7 +14,7 @@ public class MutatePeriodAssignment {
 	/** do not updates cost + penalty
 	 if sobgula client er frequency = period hoy tahole, period assignment mutation er kono effect nai
 	*/
-	public static void mutatePeriodAssignment(Individual individual, double loadPenaltyFactor, double routeTimePenaltyFactor)
+	public static void mutatePeriodAssignment(Individual individual, double loadPenaltyFactor, double routeTimePenaltyFactor,boolean improveResultantRoute)
 	{
 		ProblemInstance problemInstance = individual.problemInstance;
 		boolean success;
@@ -23,7 +23,7 @@ public class MutatePeriodAssignment {
 		do
 		{
 			clientNo = Utility.randomIntInclusive(problemInstance.customerCount-1);
-			success = mutatePeriodAssignment(individual,clientNo,loadPenaltyFactor,routeTimePenaltyFactor);
+			success = mutatePeriodAssignment(individual,clientNo,loadPenaltyFactor,routeTimePenaltyFactor,improveResultantRoute);
 			total--;
 		}while(success==false && total>0);
 	
@@ -31,7 +31,7 @@ public class MutatePeriodAssignment {
 	
 	//returns 0 if it couldnt mutate as period == freq
 	//need to edit this- must repair 
-	private static boolean mutatePeriodAssignment(Individual individual, int clientNo, double loadPenaltyFactor, double routeTimePenaltyFactor)
+	private static boolean mutatePeriodAssignment(Individual individual, int clientNo, double loadPenaltyFactor, double routeTimePenaltyFactor,boolean improveResultantRoute)
 	{
 		ProblemInstance problemInstance = individual.problemInstance;
 		
@@ -62,7 +62,7 @@ public class MutatePeriodAssignment {
 		{
 			if(individual.periodAssignment[period][clientNo]) 
 			{
-				PatternImprovement.removeClientFromPeriod(individual, period, clientNo,true);
+				PatternImprovement.removeClientFromPeriod(individual, period, clientNo,improveResultantRoute);
 				//individual.periodAssignment[period][clientNo] = false;
 			}	
 		}
@@ -72,7 +72,7 @@ public class MutatePeriodAssignment {
 		{
 			if(newBitArray[period]==1) 
 			{
-				PatternImprovement.addClientIntoPeriodGreedy(individual, period, clientNo,loadPenaltyFactor,routeTimePenaltyFactor,true);
+				PatternImprovement.addClientIntoPeriodGreedy(individual, period, clientNo,loadPenaltyFactor,routeTimePenaltyFactor,improveResultantRoute);
 				individual.periodAssignment[period][clientNo] = true;
 			}	
 			else

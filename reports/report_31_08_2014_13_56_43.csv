@@ -1,0 +1,9 @@
+Report Generation Time , 31_08_2014_13_56_43
+Number Of Generation, Population Size, Offspring Population Size, LoadPenalty, RouteTime Penalty
+1, 500, 1, 10.000000, 10.000000
+
+
+Instance Name, Min, Avg, Max, Feasible 
+benchmark/MDPVRP/pr05, 7512.538410, 7512.538410, 7512.538410, 0 
+
+ELAPSED TIME : 0 minutes 3 seconds

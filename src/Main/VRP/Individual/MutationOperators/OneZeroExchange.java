@@ -2,7 +2,7 @@ package Main.VRP.Individual.MutationOperators;
 import java.util.ArrayList;
 
 import Main.Utility;
-import Main.VRP.GeneticAlgorithm.Mutation_Grouped;
+import Main.VRP.GeneticAlgorithm.Neigbour_Steps_Grouped;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.MinimumCostInsertionInfo;
 import Main.VRP.Individual.RouteUtilities;
@@ -19,7 +19,7 @@ public class OneZeroExchange
 	 * <br/> Like - we can select the order the routes according to avg distance from this client and assign this client to the  next/prev route 
 	 * @param individual
 	 */
-	public static void mutate(Individual individual)
+	public static void interRouteOneZeroExchange(Individual individual,boolean insertWithMinimumCostIncreaseHeuristic, boolean improveResultantRoute)
 	{
 		//vehicle count 2 er kom hole ei operator call korar kono mane e nai
 		if(individual.problemInstance.vehicleCount<2) return;
@@ -31,11 +31,35 @@ public class OneZeroExchange
 			client = Utility.randomIntInclusive(individual.problemInstance.customerCount-1);		
 		}while(individual.periodAssignment[period][client] == false);
 		
-		mutateVehicleAssignmentRandom(individual,period,client);
+		oneZeroExchange(individual,period,client, insertWithMinimumCostIncreaseHeuristic,improveResultantRoute,false);
+	}
 
+	public static void oneZeroExchangeIntra_and_Inter_both(Individual individual,boolean insertWithMinimumCostIncreaseHeuristic, boolean improveResultantRoute)
+	{
+		//vehicle count 2 er kom hole ei operator call korar kono mane e nai
+		if(individual.problemInstance.vehicleCount<2) return;
+
+		int period,client;
+		do
+		{
+			period = Utility.randomIntInclusive(individual.problemInstance.periodCount-1);
+			client = Utility.randomIntInclusive(individual.problemInstance.customerCount-1);		
+		}while(individual.periodAssignment[period][client] == false);
+		
+		oneZeroExchange(individual,period,client, insertWithMinimumCostIncreaseHeuristic,improveResultantRoute,true);
 	}
 	
-	private static void mutateVehicleAssignmentRandom(Individual individual,int period,int client)
+
+	/**
+	 * 
+	 * @param individual
+	 * @param period
+	 * @param client
+	 * @param insertWithMinimumCostIncreaseHeuristic
+	 * @param improveResultantRoute
+	 * @param allowIntra true hole, nijer route or onno jekono route a  swap korbe.. can be inter/ intra
+	 */
+	private static void oneZeroExchange(Individual individual,int period,int client,boolean insertWithMinimumCostIncreaseHeuristic,boolean improveResultantRoute,boolean allowIntra)
 	{
 		
 		int assigendVehicle = RouteUtilities.assignedVehicle(individual, client, period, individual.problemInstance);
@@ -44,23 +68,36 @@ public class OneZeroExchange
 		//remove the client from old route - with vehicle == assignedVehicle
 		individual.routes.get(period).get(assigendVehicle).remove(position);		
 	
-		int vehicle = assigendVehicle;		
-		while(vehicle==assigendVehicle)
+		int vehicle= Utility.randomIntInclusive(individual.problemInstance.vehicleCount-1);	
+		
+		if(allowIntra == false)
 		{
-			vehicle = Utility.randomIntInclusive(individual.problemInstance.vehicleCount-1);
+			while(vehicle==assigendVehicle)
+			{
+				vehicle = Utility.randomIntInclusive(individual.problemInstance.vehicleCount-1);
+			}
 		}
-		
+
 		ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
-		MinimumCostInsertionInfo newInfo= RouteUtilities.minimumCostInsertionPosition(individual.problemInstance, vehicle, client, route);
-				
-		
-		// add client to new route - with vehicle == vehicle
-		individual.routes.get(period).get(vehicle).add(newInfo.insertPosition, client);
-		
+
+		if(insertWithMinimumCostIncreaseHeuristic)
+		{
+			MinimumCostInsertionInfo newInfo= RouteUtilities.minimumCostInsertionPosition(individual.problemInstance, vehicle, client, route);
+			route.add(newInfo.insertPosition, client);
+		}
+		else
+		{
+			int size = route.size();
+			int randPos = Utility.randomIntInclusive(size);
+			route.add(randPos,client);
+		}
 		//Mutation_Grouped.mutateRouteAssignment(individual, loadPenaltyFactor, routeTimePenaltyFactor)
 		
-		Mutation_Grouped.improveRoute(individual, period, assigendVehicle); //improveOldRoute
-		Mutation_Grouped.improveRoute(individual, period, vehicle); //improve new route
+		if(improveResultantRoute)
+		{
+			Neigbour_Steps_Grouped.improveRoute(individual, period, assigendVehicle); //improveOldRoute
+			Neigbour_Steps_Grouped.improveRoute(individual, period, vehicle); //improve new route
+		}
 		
 	}
 	

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import Main.Utility;
 import Main.VRP.ProblemInstance;
-import Main.VRP.GeneticAlgorithm.Mutation_Grouped;
+import Main.VRP.GeneticAlgorithm.Neigbour_Steps_Grouped;
 import Main.VRP.GeneticAlgorithm.Scheme6;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.Individual.Individual;
@@ -15,30 +15,45 @@ import Main.VRP.Individual.RouteUtilities;
 public class PatternImprovement {
 
 	
-	public static void patternImprovement(Individual individual, double loadPenaltyFactor, double routeTimePenaltyFactor)
+	public static void patternImprovement(Individual individual, double loadPenaltyFactor, double routeTimePenaltyFactor, boolean improveResultantRoute)
 	{
 		ProblemInstance problemInstance = individual.problemInstance;
-		
 		int chosenClient = Utility.randomIntInclusive(problemInstance.customerCount-1);
 		
+		TotalCostCalculator.calculateCost(individual, loadPenaltyFactor, routeTimePenaltyFactor);
+		double currentCost = individual.costWithPenalty; 		
+		int currentVisitPattern = individual.visitCombination[chosenClient]; 
+		//Individual bestNode = individual;
+		
+		int chosenVisitPattern=currentVisitPattern;		
 		int noOfPossiblePatterns = problemInstance.allPossibleVisitCombinations.get(chosenClient).size();
-		
-		double min = Double.MAX_VALUE;
-		
-		int chosenVisitPattern = -1; 
 		
 		for(int i=0;i<noOfPossiblePatterns ;i++)
 		{
-			changeVisitPattern(individual, chosenClient, problemInstance.allPossibleVisitCombinations.get(chosenClient).get(i),loadPenaltyFactor,routeTimePenaltyFactor,true);
-			TotalCostCalculator.calculateCost(individual, loadPenaltyFactor, routeTimePenaltyFactor);
-			if(individual.costWithPenalty<min)
+			int newVisitPattern = problemInstance.allPossibleVisitCombinations.get(chosenClient).get(i);
+			if(newVisitPattern==currentVisitPattern) continue;
+			
+			Individual newNode = new Individual(individual);
+			
+			changeVisitPattern(newNode, chosenClient, newVisitPattern,loadPenaltyFactor,routeTimePenaltyFactor,false);
+			TotalCostCalculator.calculateCost(newNode, loadPenaltyFactor, routeTimePenaltyFactor);
+			if(newNode.costWithPenalty<currentCost)
 			{
-				chosenVisitPattern = problemInstance.allPossibleVisitCombinations.get(chosenClient).get(i);
-				min = individual.costWithPenalty;
+				chosenVisitPattern = newVisitPattern;
+				currentCost = newNode.costWithPenalty;		
+			}
+			else if(newNode.costWithPenalty == currentCost)
+			{
+				int coin = Utility.randomIntInclusive(1);
+				if(coin==1)	
+				{
+					chosenVisitPattern = newVisitPattern;
+				}
 			}
 		}
 		
-		changeVisitPattern(individual, chosenClient, chosenVisitPattern,loadPenaltyFactor,routeTimePenaltyFactor,true);
+		if(chosenVisitPattern != currentVisitPattern)
+			changeVisitPattern(individual, chosenClient, chosenVisitPattern,loadPenaltyFactor,routeTimePenaltyFactor,improveResultantRoute);
 	
 	}
 	
@@ -154,7 +169,7 @@ public class PatternImprovement {
 		
 		//improve new route
 		if(improveResultantRoute)
-			Mutation_Grouped.improveRoute(individual, period, min.vehicle);
+			Neigbour_Steps_Grouped.improveRoute(individual, period, min.vehicle);
 	}
 	
 	/** Removes client from that periods route
@@ -174,7 +189,7 @@ public class PatternImprovement {
 			{
 				route.remove(new Integer(client));
 				//improve route
-				if(improveResultantRoute)Mutation_Grouped.improveRoute(individual, period, vehicle);
+				if(improveResultantRoute)Neigbour_Steps_Grouped.improveRoute(individual, period, vehicle);
 				return vehicle;
 			}
 		}

@@ -14,7 +14,8 @@ public class Initialise_ClosestDepot_GENI_GreedyCut
 	public static void initialise(Individual individual) 
 	{
 		// TODO Auto-generated method stub		
-		InitialisePeriodAssigmentUniformly.initialise(individual);
+//		InitialisePeriodAssigmentUniformly.initialise(individual);
+		InitialisePeriodAssigmentWithHeuristic.initialise(individual);
 		ClosestDepot_GENI_RouteWithGreedyCut(individual);
 		individual.calculateCostAndPenalty();
 	}
@@ -39,7 +40,7 @@ public class Initialise_ClosestDepot_GENI_GreedyCut
 		}
 		
 		//create big routes
-		GENI.initialiseBigRoute(individual);
+		GENI.initialiseBigRouteWithClosestClients(individual,GENI.CLOSEST_DEPOT);
 		
 		//now cut the routes and distribute to vehicles
 		for(int period=0; period<problemInstance.periodCount;period++)

@@ -13,23 +13,13 @@ import Main.VRP.Individual.RouteUtilities;
 
 public class GENI 
 {
-	
+	public static int CLOSEST_DEPOT=1;
 	public static int P = 7; // P of P neighborhood
 	public static int DEPOT;
 	
 	
-	//period assignment done, create bigroutes for each depot, period pair
-	public static void initialiseBigRoute(Individual individual)
+	private static void assignEachClientToCLosestDepot(ProblemInstance problemInstance,ArrayList[] clientsUnderDepot)
 	{
-		ProblemInstance problemInstance = individual.problemInstance;
-		DEPOT = problemInstance.customerCount;
-		// contains the clients that are closest to this depot. in random order
-		ArrayList[] clientsUnderDepot = new ArrayList[problemInstance.depotCount]; 
-		for(int depot =0;depot<problemInstance.depotCount;depot++)
-		{
-			clientsUnderDepot[depot] = new ArrayList();
-		}
-		
 		int assigned=0;		
 		boolean[] clientMap = new boolean[problemInstance.customerCount];
 		while(assigned<problemInstance.customerCount)
@@ -44,6 +34,21 @@ public class GENI
 			
 			clientsUnderDepot[depot].add(clientNo);
 		}
+	}
+	//period assignment done, create bigroutes for each depot, period pair
+	public static void initialiseBigRouteWithClosestClients(Individual individual,int variant)
+	{
+		ProblemInstance problemInstance = individual.problemInstance;
+		DEPOT = problemInstance.customerCount;
+		// contains the clients that are closest to this depot. in random order
+		ArrayList[] clientsUnderDepot = new ArrayList[problemInstance.depotCount]; 
+		for(int depot =0;depot<problemInstance.depotCount;depot++)
+		{
+			clientsUnderDepot[depot] = new ArrayList();
+		}
+		
+		if(variant == CLOSEST_DEPOT)
+			assignEachClientToCLosestDepot(problemInstance,clientsUnderDepot);
 		
 		//print
 /*		for(int depot =0;depot<problemInstance.depotCount;depot++)
@@ -84,12 +89,28 @@ public class GENI
 					else
 						clientsClosestToThisDepot.remove(i);
 				}
-				//System.out.println("Depot: "+depot + " Closest Clients: "+ clientsUnderDepot[depot]);
+				//System.out.println("Depot: "+depot + " Closest Clients: "+ clientsClosestToThisDepot);
 
+				//*********************************//////
+				//totka solution
+				
+				if(clientsClosestToThisDepot.size()<2) 
+				{
+					ArrayList<Integer> bigRoute = individual.bigRoutes.get(period).get(depot);	
+					while(!clientsClosestToThisDepot.isEmpty())
+					{
+						int node= clientsClosestToThisDepot.get(0);
+						bigRoute.add(node);
+						clientsClosestToThisDepot.remove(0);
+					}
+					continue;
+				}
+				
 				//1a. create initial tour with at least 3 vertices , first one being the depot and other two being the first 
 				//   and 2 clients from closest client list
 				
 				ArrayList<Integer> currentRoute = new ArrayList<Integer>();
+				
 				
 				
 				currentRoute.add(clientsClosestToThisDepot.get(0));

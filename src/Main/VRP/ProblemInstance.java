@@ -24,7 +24,10 @@ public class ProblemInstance
 	 */
 	public int depotAllocation[]; 
 	
-	public double loadCapacity[]; // kon vehicle max koto load nite parbe
+	/**
+	 *  kon vehicle max koto load nite parbe
+	 */
+	public double loadCapacity[]; //
 	public double serviceTime[];  // kon client kototuk time lage service pete
 	/**
 	 * kon client koto demand

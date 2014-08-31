@@ -12,6 +12,8 @@ public class Three_Opt {
 	
 	public static void mutateRandomRoute(Individual individual)
 	{
+		//System.err.println("in 3 opt");
+
 		ProblemInstance problemInstance = individual.problemInstance;
 		//boolean success = false;
 		//do
@@ -20,7 +22,7 @@ public class Three_Opt {
 			int vehicle = Utility.randomIntInclusive(problemInstance.vehicleCount-1);
 			
 			//mutateRouteBy_Or_Opt(individual, 0, 3);
-			mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);
+			mutateRouteBy_Three_Opt_with_first_better_move(individual, period, vehicle);
 			
 			//success = mutateRouteBy2_Opt(individual,period, vehicle);
 		//}while(success==false);
@@ -28,6 +30,7 @@ public class Three_Opt {
 	
 	public static void onAllROute(Individual individual)
 	{
+	//	System.err.println("in 3 opt");
 		ProblemInstance problemInstance = individual.problemInstance;
 		
 	//	mutateRouteBy2_Opt(individual, 0, 1);if(true)return;

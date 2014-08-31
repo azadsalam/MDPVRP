@@ -8,11 +8,11 @@ public abstract class LocalImprovement
 	public LocalSearch localSearch;
 	int count;
 	
-	public LocalImprovement(LocalSearch localSearch,int populationSize) 
+	public LocalImprovement(LocalSearch localSearch) 
 	{
 		// TODO Auto-generated constructor stub
 			this.localSearch = localSearch;
-		count = populationSize/4 ;
+	//	count = populationSize/4 ;
 	}
 	public abstract void initialise(Individual[] population); 
 

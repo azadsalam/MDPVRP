@@ -10,18 +10,23 @@ import java.util.Scanner;
 import javax.rmi.CORBA.Tie;
 
 import Main.VRP.ProblemInstance;
+import Main.VRP.GeneticAlgorithm.BasicGeneticAlgorithm;
+import Main.VRP.GeneticAlgorithm.BasicSimulatedAnnealing;
 import Main.VRP.GeneticAlgorithm.GeneticAlgorithm;
 import Main.VRP.GeneticAlgorithm.Scheme6;
 import Main.VRP.GeneticAlgorithm.Scheme6_With_Binary_Tournament;
 import Main.VRP.GeneticAlgorithm.Scheme6_dynamic_penalty_factor;
+import Main.VRP.GeneticAlgorithm.Scheme6_with_crossover_only;
 import Main.VRP.GeneticAlgorithm.Scheme6_with_normal_mutation;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.GeneticAlgorithm.bulkInitialization;
 import Main.VRP.GeneticAlgorithm.TestAlgo.MutationTest;
 import Main.VRP.GeneticAlgorithm.TestAlgo.TestAlgo;
 import Main.VRP.GeneticAlgorithm.TestAlgo.TestDistance;
+import Main.VRP.GeneticAlgorithm.TestAlgo.Tester_Crossover;
 import Main.VRP.GeneticAlgorithm.TestAlgo.Tester_Initiator;
 import Main.VRP.Individual.Individual;
+import Main.VRP.LocalImprovement.SimulatedAnnealing;
 
 
 public class Solver 
@@ -30,10 +35,10 @@ public class Solver
 	//public static int totalNumberofSingleRun = 1;
 	public static double loadPenaltyFactor = 10;
 	public static double routeTimePenaltyFactor = 10;	
-	public static boolean singleRun = true;
+	//public static boolean singleRun = true;
 
 	int aggregate_report_run_size=1;
-	public static boolean writeToExcel=true;
+	public static boolean writeToExcel=false;
 	public static boolean generateAggregatedReport=true;
 	public static boolean printEveryGeneration = true;
 	public static boolean printFinalSolutionToFile=true; // output the final population in file
@@ -42,6 +47,8 @@ public class Solver
 	
 	public static boolean improveRouteAfterInterRouteOperation= true;
 	
+	public static boolean gatherCrossoverStat=false;
+	
 	//all mdpvrp
 	/*public static String[] instanceFiles={"benchmark/MDPVRP/pr01","benchmark/MDPVRP/pr02","benchmark/MDPVRP/pr03"
 		,"benchmark/MDPVRP/pr04","benchmark/MDPVRP/pr05","benchmark/MDPVRP/pr06"
@@ -49,6 +56,21 @@ public class Solver
 		,"benchmark/MDPVRP/pr10"
 		};*/
 
+	//all mdvrp - pr01- pr10
+	/*public static String[] instanceFiles={"benchmark/MDVRP/pr01","benchmark/MDVRP/pr02","benchmark/MDVRP/pr03"
+		,"benchmark/MDVRP/pr04","benchmark/MDVRP/pr05","benchmark/MDVRP/pr06"
+		,"benchmark/MDVRP/pr07","benchmark/MDVRP/pr08","benchmark/MDVRP/pr09"
+		,"benchmark/MDVRP/pr10"
+		};
+	*/
+	 
+	//all pvrp - pr01 - pr 10
+/*	public static String[] instanceFiles={"benchmark/PVRP/pr01","benchmark/PVRP/pr02","benchmark/PVRP/pr03"
+		,"benchmark/PVRP/pr04","benchmark/PVRP/pr05","benchmark/PVRP/pr06"
+		,"benchmark/PVRP/pr07","benchmark/PVRP/pr08","benchmark/PVRP/pr09"
+		,"benchmark/PVRP/pr10"
+		};*/
+	
 	// selected instances
 	/*public static String[] instanceFiles={"benchmark/MDVRP/p11","benchmark/MDVRP/p21"
 		,"benchmark/MDVRP/pr05","benchmark/MDVRP/pr10"
@@ -57,6 +79,9 @@ public class Solver
 		};
 	*/
 	
+	
+//	public static String[] instanceFiles={"benchmark/MDPVRP/pr01","benchmark/MDPVRP/pr02","benchmark/MDPVRP/pr03"};
+
 	public static String[] instanceFiles={"benchmark/MDPVRP/pr10"};
 	
 	//FOR OUTPUT TRACE //TEST ALGORITHM
@@ -333,7 +358,12 @@ public class Solver
 			
 			//Scheme6_dynamic_penalty_factor ga = new Scheme6_dynamic_penalty_factor(problemInstance);
 			Scheme6_with_normal_mutation ga = new Scheme6_with_normal_mutation(problemInstance);
-		//	Tester_Initiator ga = new Tester_Initiator(problemInstance);
+			//BasicGeneticAlgorithm ga = new BasicGeneticAlgorithm(problemInstance);
+			//BasicSimulatedAnnealing ga = new BasicSimulatedAnnealing(problemInstance);
+			//Scheme6_with_crossover_only ga = new Scheme6_with_crossover_only(problemInstance);
+			//Tester_Initiator ga = new Tester_Initiator(problemInstance);
+			//Tester_Crossover ga = new Tester_Crossover(problemInstance);
+			
 			
 			if(once && generateAggregatedReport)
 			{

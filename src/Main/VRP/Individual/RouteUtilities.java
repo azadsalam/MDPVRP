@@ -51,6 +51,77 @@ public class RouteUtilities
 
 
 	/**
+	 * Returns the depotNUmber which serves the client  
+	 * @param individual
+	 * @param client
+	 * @param period
+	 * @param problemInstance
+	 * @return vehicleNumber, v ; if the client is present in the period
+	 * <br/> -1 if not present
+	 */	
+	public static int assignedDepot(Individual individual, int client, int period,ProblemInstance problemInstance)
+	{
+		for(int vehicle=0;vehicle<problemInstance.vehicleCount;vehicle++)
+		{
+			ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
+			if(route.contains(client))
+			{
+				return problemInstance.depotAllocation[vehicle];
+			}
+		}	
+		return -1;
+	}
+	
+	public static void greedyCutWithMinimumViolation(Individual individual,int period,int depot, ArrayList<Integer> bigRoute) 
+	{
+		ProblemInstance problemInstance = individual.problemInstance;
+		ArrayList<Integer> vehicles = problemInstance.vehiclesUnderThisDepot.get(depot);
+		
+		
+		int currentVehicleIndex = 0;
+		double currentLoad=0;
+		
+		while(!bigRoute.isEmpty() && currentVehicleIndex <vehicles.size())
+		{
+			int vehicle = vehicles.get(currentVehicleIndex);
+			int client = bigRoute.get(0);
+			
+			double thisCapacity = problemInstance.loadCapacity[vehicle];
+			double thisClientDemand = problemInstance.demand[client];
+			
+			double loadViolation = (currentLoad+thisClientDemand) - (thisCapacity);
+			
+			if(loadViolation <= 0) //add this client to this vehicle route, update info
+			{
+				individual.routes.get(period).get(vehicle).add(client);
+				currentLoad += thisClientDemand;
+				bigRoute.remove(0);
+			}
+			else
+			{
+				currentVehicleIndex++;
+				currentLoad=0;
+			}
+		}
+		
+		if(!bigRoute.isEmpty())
+		{
+			
+			//System.out.println("LEFT : "+bigRoute.size());
+			while(!bigRoute.isEmpty())
+			{
+				int client = bigRoute.get(0);
+				int vehicle = vehicles.get(vehicles.size()-1);
+				
+				individual.routes.get(period).get(vehicle).add(client);
+				bigRoute.remove(0);
+			}
+		}
+	}
+
+	
+	
+	/**
 	 * returns the index in which the client can be inserted with minimum cost increase,
 	 *  should be used for big route, when the vehicles are still unassigned
 	 * @param problemInstance
@@ -105,6 +176,68 @@ public class RouteUtilities
 		
 		cost = costMatrix[depotCount+route.get(route.size()-1)][depotCount+client] + costMatrix[depotCount+client][depot];
 		cost-=(costMatrix[depotCount+route.get(route.size()-1)][depot]);
+		
+		if(cost<min)
+		{
+			min=cost;
+			chosenInsertPosition = route.size();
+		}
+		
+		MinimumCostInsertionInfo info = new MinimumCostInsertionInfo();
+		info.increaseInCost = min;
+		info.insertPosition=chosenInsertPosition;
+		info.loadViolation= -1;
+		//info.vehicle = vehicle;
+		return info;
+	
+	}
+
+	/**
+	 * returns the MinimumCostInsertionInfo for a route consisting of only clients, no depot is considered, does not consider load violation
+	 * @param problemInstance
+	 * @param client
+	 * @param route
+	 * @return
+	 */
+	public static MinimumCostInsertionInfo minimumCostInsertionPositionWithoutDepot(ProblemInstance problemInstance,int client,ArrayList<Integer> route)
+	{
+		double min = Double.MAX_VALUE;
+		int chosenInsertPosition =- 1;
+		double cost;
+		
+		double [][]costMatrix = problemInstance.costMatrix;
+		int depotCount = problemInstance.depotCount;
+		//int depot = problemInstance.depotAllocation[vehicle];
+		
+		
+		if(route.size()==0)
+		{
+		//	route.add(client);	
+			
+			MinimumCostInsertionInfo info = new MinimumCostInsertionInfo();
+			info.increaseInCost = 0;
+			info.insertPosition=0;
+			info.loadViolation= -1;
+			//info.vehicle = vehicle;
+			return info;
+		}
+		
+		
+		
+		for(int insertPosition=1;insertPosition<route.size();insertPosition++)
+		{
+			//insert the client between insertPosition-1 and insertPosition and check 
+			cost = costMatrix[depotCount+route.get(insertPosition-1)][depotCount+client] + costMatrix[depotCount+client][depotCount+route.get(insertPosition)];
+			cost -= (costMatrix[depotCount+route.get(insertPosition-1)][depotCount+route.get(insertPosition)]);
+			if(cost<min)
+			{
+				min=cost;
+				chosenInsertPosition = insertPosition;
+			}
+		}
+		
+		cost = costMatrix[depotCount+route.get(route.size()-1)][depotCount+client] + costMatrix[depotCount+client][depotCount+route.get(0)];
+		cost-=(costMatrix[depotCount+route.get(route.size()-1)][depotCount+route.get(0)]);
 		
 		if(cost<min)
 		{

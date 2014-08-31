@@ -898,7 +898,7 @@ public class Individual
 		// 3. Any others ?????
 		
 		boolean result = true;
-		
+		boolean print = true;
 		// CHECKING IF FREQUENCY RESTRICTION IS MET OR NOT
 		for(int client=0;client<problemInstance.customerCount;client++)
 		{
@@ -911,7 +911,7 @@ public class Individual
 			
 			if(problemInstance.frequencyAllocation[client] != freq) 
 			{
-				out.println("Client Frequency Mismatch - Client : "+client+" existing frequency : "+freq+" original freq : "+problemInstance.frequencyAllocation[client]);
+				if(print)out.println("Client Frequency Mismatch - Client : "+client+" existing frequency : "+freq+" original freq : "+problemInstance.frequencyAllocation[client]);
 				result = false;
 			}
 		}
@@ -927,7 +927,7 @@ public class Individual
 				if( (bitCOmb[period]==1 && periodAssignment[period][client]==false) ||
 						(bitCOmb[period]==0 && periodAssignment[period][client]==true) )
 				{
-					out.println("Client Frequency Pattern Mismatch - Client : "+client+" period "+period+" Comb : "+comb);
+					if(print)out.println("Client Frequency Pattern Mismatch - Client : "+client+" period "+period+" Comb : "+comb);
 					result = false;
 				}				
 			}

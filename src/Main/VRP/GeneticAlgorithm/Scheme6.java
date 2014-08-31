@@ -8,7 +8,7 @@ import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
 import Main.VRP.Individual.Crossover.Crossover_Uniform_Uniform;
-import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_Crossover;
+import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_GreedyCut;
 import Main.VRP.LocalImprovement.FirstChoiceHillClimbing;
 import Main.VRP.LocalImprovement.LocalImprovement;
 import Main.VRP.LocalImprovement.LocalImprovementBasedOnFussandElititst;
@@ -113,7 +113,7 @@ public class Scheme6 implements GeneticAlgorithm
 			
 			
 			Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);*/
-			Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
+			Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
 			
 			
 			//mutation.applyMutation(offspring1);
@@ -132,7 +132,7 @@ public class Scheme6 implements GeneticAlgorithm
 				//offspring2 = new Individual(problemInstance);
 				
 				//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);	
-				Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
+				Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
 				
 				//mutation.applyMutation(offspring1);
 				//mutation.applyMutation(offspring2);

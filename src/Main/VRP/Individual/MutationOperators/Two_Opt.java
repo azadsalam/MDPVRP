@@ -10,14 +10,17 @@ public class Two_Opt {
 
 	public static void mutateRandomRoute(Individual individual)
 	{
+	//	System.err.println("in two opt");
+		
 		ProblemInstance problemInstance = individual.problemInstance;
 		int period = Utility.randomIntInclusive(problemInstance.periodCount-1);
 		int vehicle = Utility.randomIntInclusive(problemInstance.vehicleCount-1);
-		mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
+		mutateRouteBy2_Opt_with_FirstBetterCombination(individual, period, vehicle);
 	}
 	
 	public static void onAllROute(Individual individual)
 	{
+	//	System.err.println("in two opt");
 		ProblemInstance problemInstance = individual.problemInstance;
 		
 	//	mutateRouteBy2_Opt(individual, 0, 1);if(true)return;

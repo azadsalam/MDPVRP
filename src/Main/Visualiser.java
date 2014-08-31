@@ -164,8 +164,17 @@ public class Visualiser
 		//System.out.println("VIS - ADDING : "+name);
 		individuals.add(individual);
 		names.add(name);
-		window.optionsPanel.updateOptionPane();
-        //Window.surface.repaint();
+		
+		try
+		{
+			window.optionsPanel.updateOptionPane();
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			System.err.println("EXCEPTION IN VISUALIZER");
+			e.printStackTrace();
+		}
+			//Window.surface.repaint();
 	}
 }
 

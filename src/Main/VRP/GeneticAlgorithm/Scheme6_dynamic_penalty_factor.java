@@ -10,7 +10,7 @@ import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
 import Main.VRP.Individual.Crossover.Crossover_Uniform_Uniform;
-import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_Crossover;
+import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_GreedyCut;
 import Main.VRP.Individual.MutationOperators.MutationInterface;
 import Main.VRP.LocalImprovement.FirstChoiceHillClimbing;
 import Main.VRP.LocalImprovement.LocalImprovement;
@@ -57,7 +57,7 @@ public class Scheme6_dynamic_penalty_factor implements GeneticAlgorithm
 		this.problemInstance = problemInstance;
 		out = problemInstance.out;
 
-		mutation = new Mutation_Grouped();
+		mutation = new Neigbour_Steps_Grouped();
 		
 		//Change here if needed
 		population = new Individual[POPULATION_SIZE];
@@ -144,7 +144,7 @@ public class Scheme6_dynamic_penalty_factor implements GeneticAlgorithm
 			//offspring2 = new Individual(problemInstance);
 			
 						
-			Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
+			Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
 			//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);
 			
 			mutation.applyMutation(offspring1);
@@ -161,7 +161,7 @@ public class Scheme6_dynamic_penalty_factor implements GeneticAlgorithm
 				
 				offspring1 = new Individual(problemInstance);				
 				//Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
-				Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
+				Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
 				
 				//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);
 

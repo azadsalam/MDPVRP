@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import Main.Solver;
 import Main.Utility;
 import Main.VRP.ProblemInstance;
-import Main.VRP.GeneticAlgorithm.Mutation_Grouped;
+import Main.VRP.GeneticAlgorithm.Neigbour_Steps_Grouped;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.MinimumCostInsertionInfo;
@@ -158,8 +158,9 @@ public class GreedyVehicleReAssignment
 		if(min.vehicle==assigendVehicle && min.insertPosition==position) return false;
 		else
 		{
-			Mutation_Grouped.improveRoute(individual, period, assigendVehicle); //improve old route
-			Mutation_Grouped.improveRoute(individual, period, min.vehicle);     //improve new route 
+
+			Neigbour_Steps_Grouped.improveRoute(individual, period, assigendVehicle); //improve old route
+			Neigbour_Steps_Grouped.improveRoute(individual, period, min.vehicle);     //improve new route 
 			
 			return true;
 		}

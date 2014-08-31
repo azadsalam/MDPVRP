@@ -19,9 +19,8 @@ public class InitialisePeriodAssigmentUniformly
 			
 			int size = possiblilities.size();
 			int ran = Utility.randomIntInclusive(size-1);
-			
+				
 			individual.visitCombination[client] = possiblilities.get(ran);
-			
 			
 			int[] bitArray = problemInstance.toBinaryArray(individual.visitCombination[client]);
 			for(int period = 0;period<problemInstance.periodCount;period++)
@@ -38,5 +37,7 @@ public class InitialisePeriodAssigmentUniformly
 					
 		}
 	}
+	
+	
 
 }

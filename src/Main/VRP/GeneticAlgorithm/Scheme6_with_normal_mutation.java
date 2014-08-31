@@ -9,11 +9,16 @@ import Main.visualize;
 import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
+import Main.VRP.Individual.Crossover.CrossoverStatistics;
 import Main.VRP.Individual.Crossover.Crossover_Uniform_Uniform;
-import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_Crossover;
+import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation;
+import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_GreedyCut;
+import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_with_No_Load_Crossover;
 import Main.VRP.Individual.MutationOperators.GreedyVehicleReAssignment;
 import Main.VRP.Individual.MutationOperators.MutationInterface;
 import Main.VRP.Individual.MutationOperators.RepairProcedure;
+import Main.VRP.Individual.MutationOperators.Three_Opt;
+import Main.VRP.Individual.MutationOperators.Two_Opt;
 import Main.VRP.LocalImprovement.FirstChoiceHillClimbing;
 import Main.VRP.LocalImprovement.LocalImprovement;
 import Main.VRP.LocalImprovement.LocalImprovementBasedOnFussandElititst;
@@ -48,18 +53,20 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 	PrintWriter out; 
 	ProblemInstance problemInstance;
 
-	//Temprary Variables
+	//Temporary Variables
 	Individual parent1,parent2;
 	
 
 	
 	public Scheme6_with_normal_mutation(ProblemInstance problemInstance) 
 	{
+		//System.err.println("in scheme 6");
+
 		// TODO Auto-generated constructor stub
 		this.problemInstance = problemInstance;
 		out = problemInstance.out;
 
-		mutation = new Mutation_Grouped();
+		mutation = new RandomMutation();
 		
 		//Change here if needed
 		population = new Individual[POPULATION_SIZE];
@@ -69,10 +76,11 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 		//Add additional code here
 		rouletteWheelSelection = new RouletteWheelSelection();
 	    fussSelection = new FUSS();
-		survivalSelectionOperator = new FUSS(); 
+		survivalSelectionOperator = new RouletteWheelSelection(); 
 
-		localSearch = new SimulatedAnnealing(mutation);
-		localImprovement = new LocalImprovementBasedOnFussandElititst(localSearch, POPULATION_SIZE);	
+		MutationInterface neighbourhoodStep = new Neigbour_Steps_Grouped();
+		localSearch = new FirstChoiceHillClimbing(neighbourhoodStep);
+		localImprovement = new LocalImprovementBasedOnFussandElititst(localSearch);	
 		
 	}
 
@@ -82,8 +90,8 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 		
 		Individual offspring1,offspring2;
 
-		Individual.calculateAssignmentProbalityForDiefferentDepot(problemInstance);
-		Individual.calculateProbalityForDiefferentVehicle(problemInstance);
+		//Individual.calculateAssignmentProbalityForDiefferentDepot(problemInstance);
+		//Individual.calculateProbalityForDiefferentVehicle(problemInstance);
 		PopulationInitiator.initialisePopulation(population, POPULATION_SIZE, problemInstance);
 		TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
 		
@@ -95,8 +103,13 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 		double bestBeforeInjection=-1;
 		int apply=0;
 		
+		
+		if(Solver.gatherCrossoverStat)
+			CrossoverStatistics.init();
+		
 		for( generation=0;generation<NUMBER_OF_GENERATION;generation++)
 		{
+			
 			//For collecting min,max,avg
 			
 			Solver.gatherExcelData(population, POPULATION_SIZE, generation);
@@ -112,22 +125,51 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 			}
 			*/
 			
+			/*if(generation%20==0 && generation !=0)
+			{
+				
+				System.out.println("APPLYING THREE OPT ON ALL");
+				for (int tmp=0;tmp<POPULATION_SIZE;tmp++)
+				{
+					double costBefore = population[tmp].costWithPenalty;
+					Three_Opt.onAllROute(population[tmp]);
+					TotalCostCalculator.calculateCost(population[tmp], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
+					double costAfter = population[tmp].costWithPenalty;
+					System.out.println("Cost before: "+costBefore+" Cost After: "+costAfter);
+					
+				}
+			}*/
+			
+			//TotalCostCalculator.calculateCostofPopulation(offspringPopulation, start, populationSize, loadPenaltyFactor, routeTimePenaltyFactor)
+			
 			fussSelection.initialise(population, false);
 			rouletteWheelSelection.initialise(population, false);
 			
 			i=0;
 			
-			
+
+			 
 			parent1 = population[0];
 			parent2 = rouletteWheelSelection.getIndividual(population);
+			
+/*			out.println("Parent1 -cost "+parent1.cost+" Load Violation "+parent1.totalLoadViolation+" Route Time VIolation "+parent1.totalRouteTimeViolation);
+			parent1.print();
+			out.println("Parent2 -cost "+parent2.cost+" Load Violation "+parent2.totalLoadViolation+" Route Time VIolation "+parent2.totalRouteTimeViolation);
+			parent2.print();*/
 			
 			offspring1 = new Individual(problemInstance);
 		//	offspring2 = new Individual(problemInstance);
 			
-						
-			Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
+			Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);			
+//			Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
+			//Uniform_VariedEdgeRecombnation_with_No_Load_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
 			//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);
 			
+			
+			/*TotalCostCalculator.calculateCost(offspring1, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
+			out.println("Offspring -cost "+offspring1.cost+" Load Violation "+offspring1.totalLoadViolation+" Route Time VIolation "+offspring1.totalRouteTimeViolation);
+			offspring1.print();
+			*/
 			mutation.applyMutation(offspring1);
 			
 			offspringPopulation[i] = offspring1;
@@ -141,8 +183,13 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				parent2 = fussSelection.getIndividual(population);
 				
 				offspring1 = new Individual(problemInstance);				
-				//Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
-				Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
+				
+				//Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
+
+				//Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
+				
+				Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
+				//Uniform_VariedEdgeRecombnation_with_No_Load_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
 				
 				//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);
 
@@ -195,9 +242,29 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 
 			TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
 						
-			localImprovement.initialise(parentOffspringTotalPopulation);
-			localImprovement.run(parentOffspringTotalPopulation);
+			int coin = Utility.randomIntInclusive(1);
+			//int coin =1;
+			if(coin==0)
+			{
+				LocalSearch hc = new FirstChoiceHillClimbing(new Neigbour_Steps_Grouped());
+				LocalImprovement li = new LocalImprovementBasedOnFussandElititst(hc);
+				li.initialise(parentOffspringTotalPopulation);
+				li.run(parentOffspringTotalPopulation);
+			}
+			else
+			{
+				LocalSearch sa = new SimulatedAnnealing(new Neigbour_Steps_Grouped());
+				LocalImprovement li = new LocalImprovementBasedOnFussandElititst(sa);
+				li.initialise(parentOffspringTotalPopulation);
+				li.run(parentOffspringTotalPopulation);
+			}
 			
+			
+			
+			//testing new thing
+/*			localImprovement.initialise(parentOffspringTotalPopulation);
+			localImprovement.run(parentOffspringTotalPopulation);
+*/			
 			TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
 			
 			
@@ -224,14 +291,15 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				
 			}*/
 
-			/*int infeasibleCount=0;
+/*			int infeasibleCount=0;
 			double totalInfeasibility=0;
 			for(int p=0;p<parentOffspringTotalPopulation.length;p++)
 			{
 				if(!parentOffspringTotalPopulation[p].isFeasible)
 				{
 					infeasibleCount++;
-					totalInfeasibility += parentOffspringTotalPopulation[p].totalLoadViolation+parentOffspringTotalPopulation[p].totalRouteTimeViolation;
+					//add route time violation
+					totalInfeasibility += parentOffspringTotalPopulation[p].totalLoadViolation;
 				}
 			}
 			double avgInfeasibility;
@@ -244,13 +312,21 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 			
 			for(int p=0;p<parentOffspringTotalPopulation.length;p++)
 			{
-				if(parentOffspringTotalPopulation[p].totalLoadViolation+parentOffspringTotalPopulation[p].totalRouteTimeViolation > avgInfeasibility)
+				//add route time violation
+				if(parentOffspringTotalPopulation[p].totalLoadViolation > avgInfeasibility)
 				{
 					//System.out.println("Before Repair- Cost: "+parentOffspringTotalPopulation[p].cost+" Load Violation: "+parentOffspringTotalPopulation[p].totalLoadViolation);
-					localSearch.improve(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor*50, Solver.routeTimePenaltyFactor*50);
+					//localSearch.improve(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor*50, Solver.routeTimePenaltyFactor*50);
 					//TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
 					//System.out.println("After Repair- Cost: "+parentOffspringTotalPopulation[p].cost+" Load Violation: "+parentOffspringTotalPopulation[p].totalLoadViolation);
 					//System.out.println();
+					
+				
+					LocalSearch sa = new SimulatedAnnealing(new Neigbour_Steps_Grouped());
+				    sa.improve(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor*50, Solver.routeTimePenaltyFactor*50);
+					
+					
+
 				}
 			}*/
 			
@@ -263,7 +339,7 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 			int elitistRatio = (int)(POPULATION_SIZE * Solver.ServivorElitistRation);
 			/////////////////////////////////////////////////////////////////////////////////////////
 			
-			
+			//for now pure elitist
 			population[0] = parentOffspringTotalPopulation[0];
 			
 			int index2=1;
@@ -286,7 +362,7 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				population[i]= survivalSelectionOperator.getIndividual(total);
 			}
 			
-			
+			//for now pure elitist - end
 			
 			/**
 			if(unImprovedGeneration>=5)
@@ -330,9 +406,13 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 			int totalFeasible=0;
 			if(Solver.printEveryGeneration)
 			{
+				if(Solver.showViz)
+					Solver.visualiser.drawIndividual(population[0], "Best Gen: "+generation);
+				
 				double tmpSum=0;
 				
-				for(int tmpi=0;tmpi<POPULATION_SIZE;tmpi++){
+				for(int tmpi=0;tmpi<POPULATION_SIZE;tmpi++)
+				{
 					tmpSum += population[tmpi].costWithPenalty;
 					if(population[tmpi].isFeasible) totalFeasible++;
 				}
@@ -381,6 +461,8 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 
 		if(Solver.showViz)Solver.visualiser.drawIndividual(population[0], "Best");
 
+		if(Solver.gatherCrossoverStat)
+			CrossoverStatistics.print();
 		
 		for(int tmp=0;tmp<POPULATION_SIZE;tmp++)
 		{
@@ -388,6 +470,7 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				return population[tmp];
 		}
 		return population[0];
+		
 
 	}
 	

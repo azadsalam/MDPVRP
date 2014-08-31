@@ -8,6 +8,7 @@ import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
 import Main.VRP.Individual.Initialise_ClosestDepot_UniformCut;
 import Main.VRP.Individual.Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut;
 import Main.VRP.Individual.RandomInitialisation;
+import Main.VRP.Individual.RandomInitialisationWithCyclicVehicleAssignment;
 
 public class PopulationInitiator 
 {
@@ -26,12 +27,22 @@ public class PopulationInitiator
 			//	Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut.initiialise(population[i]);
 			
 			if(i%3 == 0)
-				RandomInitialisation.initialiseRandom(population[i]);
+				RandomInitialisationWithCyclicVehicleAssignment.initialiseRandom(population[i]);
 			else if(i%3 == 1)
 				Initialise_ClosestDepot_GENI_GreedyCut.initialise(population[i]);
 			else if(i%3 == 2)
 				Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut.initiialise(population[i]);
 			
+			
+//			if(i%2 ==0)
+
+		//	Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut.initiialise(population[i]);
+			
+/*			if(i%2 == 1)
+				Initialise_ClosestDepot_GENI_GreedyCut.initialise(population[i]);
+			else
+				Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut.initiialise(population[i]);
+*/
 			
 /*			else
 				Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut.initiialise(population[i]);*/

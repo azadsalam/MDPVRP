@@ -10,15 +10,19 @@ import Main.VRP.GeneticAlgorithm.GeneticAlgorithm;
 import Main.VRP.GeneticAlgorithm.PopulationInitiator;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.Individual.Individual;
+import Main.VRP.Individual.Initialise_ClosestDepotWithGreedyCut;
 import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
+import Main.VRP.Individual.Initialise_ClosestDepot_UniformCut;
 import Main.VRP.Individual.Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut;
+import Main.VRP.Individual.RandomInitialisation;
+import Main.VRP.Individual.RandomInitialisationWithCyclicVehicleAssignment;
 
 
 public class Tester_Initiator  implements GeneticAlgorithm
 {
 	PrintWriter out; 
 	
-	public static int POPULATION_SIZE = 100;
+	public static int POPULATION_SIZE = 1000;
 	public static int NUMBER_OF_OFFSPRING = 1;
 	public static int NUMBER_OF_GENERATION = 1;
 	
@@ -70,7 +74,12 @@ public class Tester_Initiator  implements GeneticAlgorithm
 		for(int i=0; i<POPULATION_SIZE; i++)
 		{
 			population[i] = new Individual(problemInstance);
-			Initialise_ClosestDepot_GENI_GreedyCut.initialise(population[i]);
+			//RandomInitialisationWithCyclicVehicleAssignment.initialiseRandom(population[i]);
+			Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut.initiialise(population[i]);
+			//Initialise_ClosestDepotWithGreedyCut.initialise(population[i]);
+			//Initialise_ClosestDepot_UniformCut.initiialise(population[i]);
+			//Initialise_ClosestDepot_GENI_GreedyCut.initialise(population[i]);
+			//RandomInitialisation.initialiseRandom(population[i]);
 			//out.println("Printing Initial individual "+ i +" : \n");
 			TotalCostCalculator.calculateCost(population[i], loadPenaltyFactor, routeTimePenaltyFactor);
 			//population[i].print();
@@ -79,10 +88,14 @@ public class Tester_Initiator  implements GeneticAlgorithm
 		TotalCostCalculator.calculateCostofPopulation(population,0,POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
 		Utility.sort(population);
 
+
 		double min = population[0].costWithPenalty;
 		double max = population[0].costWithPenalty;
 		double total=0;
 		
+		/*if(Solver.showViz)Solver.visualiser.drawIndividual(population[0], "Best");
+		if(Solver.showViz)Solver.visualiser.drawIndividual(population[POPULATION_SIZE-1], "Worst");
+*/
 		for(int i=0;i<POPULATION_SIZE;i++)
 		{
 			if(population[i].costWithPenalty<min)

@@ -44,6 +44,7 @@ import Main.VRP.Individual.MutationOperators.Three_Opt;
 public class SimulatedAnnealing  extends LocalSearch
 {
 
+		private boolean print=false;
         private Scheduler scheduler;
         private Random rand;
         private MutationInterface mutation;
@@ -70,6 +71,14 @@ public class SimulatedAnnealing  extends LocalSearch
         	mutation = mutat;
         }
 
+        public SimulatedAnnealing(MutationInterface mutat,int k, double lam, int limit,boolean print) 
+        {         
+        	scheduler = new Scheduler(k, lam, limit);
+        	rand =  new Random();
+        	mutation = mutat;
+        	this.print = print; 
+        }
+
         
 
     	@Override
@@ -92,7 +101,14 @@ public class SimulatedAnnealing  extends LocalSearch
             do
             {
 	            double temperature = scheduler.getTemp(timeStep);
-	            //System.out.println("TimeStep - Temp : "+timeStep+" "+temperature );
+	         //   System.out.println("TimeStep - Temp : "+timeStep+" "+temperature );
+	            if(print)
+	            {
+	            	System.out.print("Iteration: "+timeStep+" Cost: "+current.costWithPenalty);
+	            	if(current.isFeasible)System.out.println(" feasible");
+	            	else System.out.println(" infeasible");
+	            }
+	            
 	            timeStep++;
 	            // if temperature = 0 then return current
 	            if (temperature == 0.0) 
@@ -114,6 +130,7 @@ public class SimulatedAnnealing  extends LocalSearch
 	                    current = next;
 	            }
 	            
+	            
             }while(true);
 
             //Three_Opt.onAllROute(current);
@@ -127,8 +144,8 @@ public class SimulatedAnnealing  extends LocalSearch
         // else current <- next only with probability e^(/\E/T)
         private boolean shouldAccept(double temperature, double deltaE) 
         {
-                return (deltaE > 0.0)
-                                || (rand.nextDouble() <= probabilityOfAcceptance(
+        	if(deltaE >0) return true;
+        	else    return (rand.nextDouble() <= probabilityOfAcceptance(
                                                 temperature, deltaE));
         }
 
@@ -142,8 +159,13 @@ public class SimulatedAnnealing  extends LocalSearch
          *            VALUE[<em>next</em>] - VALUE[<em>current</em>]
          * @return <em>e</em><sup>&delta<em>E / T</em></sup>
          */
-        public double probabilityOfAcceptance(double temperature, double deltaE) {
-                return Math.exp(deltaE / temperature);
+        public double probabilityOfAcceptance(double temperature, double deltaE) 
+        {
+        	
+        		double divisionValue = deltaE / temperature;
+        		double probability = Math.exp(divisionValue);
+        		//System.out.println("DeltaE"+ deltaE+" Division Value: "+divisionValue+" Probability : "+ probability);
+                return probability;
         }
 
 		void applyMutation(Individual offspring)
@@ -176,10 +198,18 @@ class Scheduler
         public Scheduler() 
         {
                 this.k = 20;
+        		//this.k = 25;
                 this.lam = 0.045;
-                this.limit = 400;
+                this.limit = 600;
         }
 
+        public Scheduler(int limit) 
+        {
+                this.k = 20;
+        		//this.k = 25;
+                this.lam = 0.045;
+                this.limit = limit;
+        }
         public double getTemp(int t) {
                 if (t < limit)
                 {

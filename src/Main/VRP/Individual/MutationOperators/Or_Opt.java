@@ -23,7 +23,7 @@ public class Or_Opt {
 		int vehicle = Utility.randomIntInclusive(problemInstance.vehicleCount-1);
 			
 			//mutateRouteBy_Or_Opt(individual, 0, 0);
-		mutateRouteBy_Or_Opt_withBestMove(individual, period, vehicle);
+		mutateRouteBy_Or_Opt_withFirstBetterMove(individual, period, vehicle);
 			
 			//success = mutateRouteBy2_Opt(individual,period, vehicle);
 		//}while(success==false);
