@@ -14,6 +14,8 @@ import Main.VRP.Individual.RouteUtilities;
 public class GENI 
 {
 	public static int CLOSEST_DEPOT=1;
+	public static int CLOSEST_DEPOT_WITH_NO_VIOLATION=2;
+	
 	public static int P = 7; // P of P neighborhood
 	public static int DEPOT;
 	

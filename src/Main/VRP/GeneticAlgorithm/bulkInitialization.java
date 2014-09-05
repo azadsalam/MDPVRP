@@ -67,8 +67,8 @@ public class bulkInitialization implements GeneticAlgorithm
 	    fussSelection = new FUSS();
 		survivalSelectionOperator = new RouletteWheelSelection(); 
 
-		localSearch = new SimulatedAnnealing(mutationWithWeightingScheme);
-		localImprovement = new LocalImprovementBasedOnFussandElititst(Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor, localSearch, POPULATION_SIZE);	
+/*		localSearch = new SimulatedAnnealing(mutationWithWeightingScheme);
+		localImprovement = new LocalImprovementBasedOnFussandElititst(Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor, localSearch, POPULATION_SIZE);	*/
 	}
 
 	public Individual run() 
@@ -260,7 +260,7 @@ public class bulkInitialization implements GeneticAlgorithm
 			
 			Utility.sort(population);	
 			
-			if(Solver.singleRun)
+		/*	if(Solver.singleRun)
 			{
 				double tmpSum=0;
 				for(int tmpi=0;tmpi<POPULATION_SIZE;tmpi++)
@@ -268,7 +268,7 @@ public class bulkInitialization implements GeneticAlgorithm
 				
 				System.out.println("Gen : "+ generation + " Best : "+population[0].costWithPenalty+  " Feasibility : "+ population[0].isFeasible +" Avg : "+(tmpSum/POPULATION_SIZE));
 			}
-			
+		*/	
 			
 		}
 

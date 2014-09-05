@@ -31,7 +31,7 @@ public class Mutation implements MutationInterface
 	
 	public void applyMutation(Individual offspring)
 	{
-		int rand = 9;
+/*		int rand = 9;
 		if(offspring.problemInstance.periodCount==1)rand-=2;
 		
 		int selectedMutationOperator = Utility.randomIntInclusive(rand);
@@ -87,7 +87,7 @@ public class Mutation implements MutationInterface
 		}
 		
 		offspring.calculateCostAndPenalty();
-		
+		*/
 		
 		//currently not used
 		

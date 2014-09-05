@@ -70,7 +70,7 @@ public class Scheme6_dynamic_penalty_factor implements GeneticAlgorithm
 		survivalSelectionOperator = new RouletteWheelSelection(); 
 
 		localSearch = new SimulatedAnnealing(mutation);
-		localImprovement = new LocalImprovementBasedOnFussandElititst(localSearch, POPULATION_SIZE);	
+		localImprovement = new LocalImprovementBasedOnFussandElititst(localSearch);	
 		
 		
 	}
@@ -144,7 +144,7 @@ public class Scheme6_dynamic_penalty_factor implements GeneticAlgorithm
 			//offspring2 = new Individual(problemInstance);
 			
 						
-			Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
+			Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
 			//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);
 			
 			mutation.applyMutation(offspring1);
@@ -161,7 +161,7 @@ public class Scheme6_dynamic_penalty_factor implements GeneticAlgorithm
 				
 				offspring1 = new Individual(problemInstance);				
 				//Uniform_VariedEdgeRecombnation_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
-				Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
+				Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
 				
 				//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);
 

@@ -132,7 +132,7 @@ public class MutationWithWeightingSchemeExponential implements MutationInterface
 	
 	public void applyMutation(Individual offspring)
 	{
-		double randNumber=Utility.randomDouble(0, 1);
+		/*double randNumber=Utility.randomDouble(0, 1);
 		int appliedOperator=-1;
 		
 		double oldCost =  offspring.costWithPenalty;
@@ -217,6 +217,6 @@ public class MutationWithWeightingSchemeExponential implements MutationInterface
 		{
 			//System.out.println("couldnt improve "+newCost);
 		}
-	}
+*/	}
 
 }

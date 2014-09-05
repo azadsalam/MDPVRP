@@ -19,7 +19,8 @@ public class InitialisePeriodAssigmentWithHeuristic
 	public static void createBigGuidingRoute(ProblemInstance problemInstance)
 	{
 		
-		if(savedProblemInstance == problemInstance && bigRouteCreated) return;
+		System.err.println("TESTING IN HEURISTIC PA");
+		//if(savedProblemInstance == problemInstance && bigRouteCreated) return;
 		
 		savedProblemInstance = problemInstance;
 		
@@ -209,7 +210,6 @@ public class InitialisePeriodAssigmentWithHeuristic
 
 		//System.out.println("in violation func. pattern: "++"violation: "+violation);
 
-		
 		return violation;
 	}
 	

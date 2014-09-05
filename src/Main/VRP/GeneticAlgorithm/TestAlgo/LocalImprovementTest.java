@@ -74,7 +74,7 @@ public class LocalImprovementTest  implements GeneticAlgorithm
 		PopulationInitiator.initialisePopulation(population, POPULATION_SIZE, problemInstance);
 		TotalCostCalculator.calculateCostofPopulation(population,0,POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
 	
-		LocalImprovement li = new LocalImprovementBasedOnFussandElititst(loadPenaltyFactor, routeTimePenaltyFactor, new FirstChoiceHillClimbing(new Mutation()),POPULATION_SIZE);
+		LocalImprovement li = new LocalImprovementBasedOnFussandElititst(new FirstChoiceHillClimbing(new Mutation()));
 		
 		
 		double prev[] = new double[POPULATION_SIZE];

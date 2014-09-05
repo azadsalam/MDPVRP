@@ -136,9 +136,9 @@ public class Neigbour_Steps_Grouped implements MutationInterface
 		if (selectedMutationOperator == 0)
 		{
 			//greedy       //inter period	
-			//PatternImprovement.patternImprovement(offspring,loadPenaltyFactor,routeTimePenaltyFactor,true);
+			PatternImprovement.patternImprovement(offspring,loadPenaltyFactor,routeTimePenaltyFactor,true);
 			//for test
-			PatternImprovement.patternImprovementOfAllClients(offspring, loadPenaltyFactor, routeTimePenaltyFactor);
+			//PatternImprovement.patternImprovementOfAllClients(offspring, loadPenaltyFactor, routeTimePenaltyFactor);
 		}
 		else 
 		{
@@ -180,8 +180,8 @@ public class Neigbour_Steps_Grouped implements MutationInterface
 	public static void improveRoute(Individual individual, int period, int vehicle)
 	{
 		
-		int coin = Utility.randomIntInclusive(1);
-		if( coin == 0)
+		//int coin = Utility.randomIntInclusive(1);
+		//if( coin == 0)
 			Two_Opt.mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
 /*		else if(coin == 1)
 			Three_Opt.mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);

@@ -10,7 +10,7 @@ public class LocalImprovementBasedOnFuss extends LocalImprovement
 	public LocalImprovementBasedOnFuss(double loadPenaltyFactor,
 			double routeTimePenaltyFactor, LocalSearch localSearch,
 			int populationSize) {
-		super( localSearch, populationSize);
+		super( localSearch);
 		// TODO Auto-generated constructor stub
 		
 		count = populationSize/2;

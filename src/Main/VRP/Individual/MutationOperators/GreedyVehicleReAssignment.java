@@ -118,9 +118,11 @@ public class GreedyVehicleReAssignment
 
 	private static boolean mutateVehicleAssignmentGreedy(Individual individual,int period,int client, double loadPenaltyFactor, double routeTimePenaltyFactor)
 	{
+		//initialising minInfo 
 		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();
-		min.increaseInCost = 999999;
-		min.loadViolationContribution = 999999;
+		min.increaseInCost = Double.MAX_VALUE;
+		min.loadViolationContribution = Double.MAX_VALUE;
+		min.routeTimeViolationContribution = Double.MAX_VALUE;
 		
 		MinimumCostInsertionInfo newInfo;
 		
@@ -136,8 +138,8 @@ public class GreedyVehicleReAssignment
 			
 			newInfo= RouteUtilities.minimumCostInsertionPosition(individual.problemInstance, vehicle, client, route);
 			
-			double minCostContribution = min.increaseInCost + min.loadViolationContribution * loadPenaltyFactor ;
-			double newCostContribution = newInfo.increaseInCost + newInfo.loadViolationContribution * loadPenaltyFactor ;
+			double minCostContribution = min.increaseInCost + min.loadViolationContribution * loadPenaltyFactor + min.routeTimeViolationContribution * routeTimePenaltyFactor;
+			double newCostContribution = newInfo.increaseInCost + newInfo.loadViolationContribution * loadPenaltyFactor +newInfo.routeTimeViolationContribution * routeTimePenaltyFactor;
 			
 			if(newCostContribution < minCostContribution)
 			{

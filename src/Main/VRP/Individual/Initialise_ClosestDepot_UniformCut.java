@@ -98,7 +98,7 @@ public class Initialise_ClosestDepot_UniformCut {
 		}
 	}
 	
-	private static void uniformCut(Individual individual,int period,int depot) 
+	public static void uniformCut(Individual individual,int period,int depot) 
 	{
 		ArrayList<Integer> bigRoute = individual.bigRoutes.get(period).get(depot);		
 		ArrayList<Integer> vehicles = individual.problemInstance.vehiclesUnderThisDepot.get(depot);

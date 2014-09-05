@@ -9,9 +9,10 @@ public class MinimumCostInsertionInfo
 	
 	public double loadViolation;
 	public double routeTimeViolation;
-	
 	/**
 	 * If insertion creates a feasible route w.r.to load capacity, loadViolationContribution must be 0
 	 */
 	public double loadViolationContribution;
+	public double routeTimeViolationContribution;
+
 }

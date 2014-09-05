@@ -30,6 +30,7 @@ public class Individual
 	public boolean feasibilitySet;
 
 	public double loadViolation[][];
+	public double routeTime[][];
 	public double totalLoadViolation;
 
 	//double totalRouteTime;
@@ -529,7 +530,7 @@ public class Individual
 		}
 
 		loadViolation = new double[problemInstance.periodCount][problemInstance.vehicleCount];
-		
+		routeTime = new double[problemInstance.periodCount][problemInstance.vehicleCount];
 		visitCombination = new int[problemInstance.customerCount];
 	}
 	
@@ -596,7 +597,7 @@ public class Individual
 		//allocate demanViolationMatrix
 
         loadViolation = new double[problemInstance.periodCount][problemInstance.vehicleCount];
-        
+        routeTime = new double[problemInstance.periodCount][problemInstance.vehicleCount];
         
 	}
 	
@@ -714,7 +715,7 @@ public class Individual
             clientDemand += problemInstance.demand[clientNode];        //Caluculate total client demand for corresponding period,vehicle
 			
 			//ignoring travelling time for now - for cordeau MDVRP
-			//totalRouteTime += problemInstance.travellingTimeMatrix[previous+problemInstance.depotCount][clientNode+problemInstance.depotCount];
+			totalRouteTime += problemInstance.travellingTimeMatrix[previous+problemInstance.depotCount][clientNode+problemInstance.depotCount];
 
 		}
 
@@ -726,7 +727,16 @@ public class Individual
     
         loadViolation[period][vehicle] = clientDemand - problemInstance.loadCapacity[vehicle];
 
-		double routeTimeViolation = totalRouteTime - problemInstance.timeConstraintsOfVehicles[period][vehicle] ;
+        routeTime[period][vehicle] = totalRouteTime;
+        
+		double routeTimeViolation = 0;
+		
+//		if(Double.compare(0.0, problemInstance.timeConstraintsOfVehicles[period][vehicle])!=0)
+		if(problemInstance.timeConstraintsOfVehicles[period][vehicle] != 0)
+		{
+			//System.out.println(problemInstance.timeConstraintsOfVehicles[period][vehicle]);
+			routeTimeViolation = totalRouteTime - problemInstance.timeConstraintsOfVehicles[period][vehicle] ;
+		}
 		if(routeTimeViolation>0) totalRouteTimeViolation += routeTimeViolation;
 
 		return costForPV;
@@ -827,10 +837,21 @@ public class Individual
             out.println();
         }
         
-		
+        out.print("Route Time MATRIX : \n");
+        for( i=0;i<problemInstance.periodCount;i++)
+        {
+            for( j=0;j<problemInstance.vehicleCount;j++)
+            {
+            	
+            	out.print(routeTime[i][j]+" ");
+            }
+            out.println();
+        }
+        
 		
         out.println("Is Feasible : "+isFeasible);
-        out.println("Total Load Violation : "+totalLoadViolation);        
+        out.println("Total Load Violation : "+totalLoadViolation);    
+        //out.println("Total Route Time: "+totalRouteTimeVi)
         out.println("Total route time violation : "+totalRouteTimeViolation);		
 		out.println("Cost : " + cost);
 		out.println("Cost with penalty : "+costWithPenalty);

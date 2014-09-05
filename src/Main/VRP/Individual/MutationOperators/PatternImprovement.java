@@ -136,17 +136,19 @@ public class PatternImprovement {
 
 		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();
 		MinimumCostInsertionInfo newInfo;
-		min.increaseInCost=99999999;
-		min.loadViolationContribution = 999999999;
+		min.increaseInCost=Double.MAX_VALUE;
+		min.loadViolationContribution = Double.MAX_VALUE;
 		min.insertPosition=-1;
+		min.routeTimeViolationContribution = Double.MAX_VALUE;
+		min.routeTimeViolation = Double.MAX_VALUE;
 		
 		for(int vehicle = 0;vehicle<Individual.problemInstance.vehicleCount;vehicle++)
 		{
 			ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
 			newInfo= RouteUtilities.minimumCostInsertionPosition(Individual.problemInstance, vehicle, client, route);
 			
-			double minCostWithPenalty = min.increaseInCost + min.loadViolationContribution * loadPenaltyFactor;
-			double newCostWithPenalty = newInfo.increaseInCost + newInfo.loadViolationContribution * loadPenaltyFactor;
+			double minCostWithPenalty = min.increaseInCost + min.loadViolationContribution * loadPenaltyFactor + min.routeTimeViolationContribution * routeTimePenaltyFactor;
+			double newCostWithPenalty = newInfo.increaseInCost + newInfo.loadViolationContribution * loadPenaltyFactor + newInfo.routeTimeViolationContribution * routeTimePenaltyFactor;
 			
 			
 			//just checking the cost WITHOUT PENALTY 

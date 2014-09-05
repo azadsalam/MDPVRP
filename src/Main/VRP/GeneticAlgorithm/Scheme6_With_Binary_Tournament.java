@@ -70,7 +70,7 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 		survivalSelectionOperator = new FUSS(); 
 
 		localSearch = new FirstChoiceHillClimbing(mutation);
-		localImprovement = new LocalImprovementBasedOnFussandElititst(loadPenaltyFactor, routeTimePenaltyFactor, localSearch, POPULATION_SIZE);	
+		localImprovement = new LocalImprovementBasedOnFussandElititst( localSearch);	
 	}
 
 	public Individual run() 
@@ -82,7 +82,7 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 		Individual.calculateAssignmentProbalityForDiefferentDepot(problemInstance);
 		Individual.calculateProbalityForDiefferentVehicle(problemInstance);
 		PopulationInitiator.initialisePopulation(population, POPULATION_SIZE, problemInstance);
-		TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor) ;
+		TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
 		
 		
 		int continuosInjection=0; 
@@ -95,7 +95,7 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 		{
 			//For collecting min,max,avg
 			Solver.gatherExcelData(population, POPULATION_SIZE, generation);
-			TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor) ;
+			TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
 			
 			//  Best individual always reproduces K=1 times + roulette wheel
 			
@@ -144,7 +144,7 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 				i++;*/
 			}
 
-			TotalCostCalculator.calculateCostofPopulation(offspringPopulation, 0,NUMBER_OF_OFFSPRING, loadPenaltyFactor, routeTimePenaltyFactor) ;
+			TotalCostCalculator.calculateCostofPopulation(offspringPopulation, 0,NUMBER_OF_OFFSPRING, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
 			Utility.concatPopulation(parentOffspringTotalPopulation, population, offspringPopulation);
 			
 			
@@ -164,7 +164,7 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 			localImprovement.initialise(parentOffspringTotalPopulation);
 			localImprovement.run(parentOffspringTotalPopulation);
 			
-			TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
+			TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
 			
 			//Preserving the k% best individual + FUSS approach, the n portion of best individuals always make to next generation
 			Utility.sort(parentOffspringTotalPopulation);
@@ -178,7 +178,7 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 						parentOffspringTotalPopulation[p] = new Individual(problemInstance);
 //						parentOffspringTotalPopulation[p].initialise_Closest_Depot_Greedy_Cut();
 						Initialise_ClosestDepot_GENI_GreedyCut.initialise(parentOffspringTotalPopulation[p]);
-						TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], loadPenaltyFactor, routeTimePenaltyFactor);
+						TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
 						//parentOffspringTotalPopulation[p].calculateCostAndPenalty();
 						//System.out.println("DUPLICATE");
 					}
@@ -255,20 +255,20 @@ public class Scheme6_With_Binary_Tournament implements GeneticAlgorithm
 			
 			Utility.sort(population);	
 			
-			if(Solver.singleRun)
+			/*if(Solver.singleRun)
 			{
 				double tmpSum=0;
 				for(int tmpi=0;tmpi<POPULATION_SIZE;tmpi++)
 					tmpSum += population[tmpi].costWithPenalty;
 				
 				System.out.println("Gen : "+ generation + " Best : "+population[0].costWithPenalty+" Avg : "+(tmpSum/POPULATION_SIZE));
-			}
+			}*/
 			
 			
 		}
 
 
-		TotalCostCalculator.calculateCostofPopulation(population,0,POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
+		TotalCostCalculator.calculateCostofPopulation(population,0,POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
 		Utility.sort(population);
 		Solver.gatherExcelData(population, POPULATION_SIZE, generation);
 		

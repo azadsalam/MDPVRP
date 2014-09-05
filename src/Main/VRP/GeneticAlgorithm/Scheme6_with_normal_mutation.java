@@ -32,9 +32,9 @@ import Main.VRP.SelectionOperator.SelectionOperator;
 public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 {
 	//Algorithm parameters
-	public static int POPULATION_SIZE = 50; 
-	public static int NUMBER_OF_OFFSPRING = 50;   
-	public static int NUMBER_OF_GENERATION = 500;
+	public static int POPULATION_SIZE = 25; 
+	public static int NUMBER_OF_OFFSPRING = 25;   
+	public static int NUMBER_OF_GENERATION = 2000;
 
 	//Algorithm data structures
 	Individual population[];
@@ -406,7 +406,7 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 			int totalFeasible=0;
 			if(Solver.printEveryGeneration)
 			{
-				if(Solver.showViz)
+				if(Solver.showViz && generation == 0)
 					Solver.visualiser.drawIndividual(population[0], "Best Gen: "+generation);
 				
 				double tmpSum=0;

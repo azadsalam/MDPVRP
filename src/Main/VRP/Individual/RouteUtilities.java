@@ -258,7 +258,9 @@ public class RouteUtilities
 	
 	/**
 	 * returns the index in which the client can be inserted with minimum cost increase
-	 * 
+	 *  - route time violation added 
+	 *  	(Assuming - route time limit is same for all period)
+	 *  	(Assuming - travel time == cost )
 	 * @param problemInstance
 	 * @param vehicle
 	 * @param client
@@ -288,6 +290,25 @@ public class RouteUtilities
 			
 			if(info.loadViolation>0) info.loadViolationContribution = info.loadViolation;
 			else info.loadViolationContribution=0;
+			
+			
+			double maxTimeLimit = problemInstance.timeConstraintsOfVehicles[0][vehicle];
+			
+			if( maxTimeLimit == 0)
+			{
+				info.routeTimeViolation = 0;
+				info.routeTimeViolationContribution = 0;
+			}
+			else
+			{
+				info.routeTimeViolation =  problemInstance.serviceTime[client] - maxTimeLimit;
+				
+				if(info.routeTimeViolation >0 ) 
+					info.routeTimeViolationContribution = info.routeTimeViolation;
+				else 
+					info.routeTimeViolationContribution = 0;
+			}
+			
 			
 			info.vehicle = vehicle;
 			return info;
@@ -345,12 +366,67 @@ public class RouteUtilities
 			else loadViolationContribution = 0;
 		} 
 		
+				
+		
+		double routeTimeViolation = 0;
+		double routeTimeViolationContribution = 0;
+		double maxTimeLimit = problemInstance.timeConstraintsOfVehicles[0][vehicle];
+
+		if(maxTimeLimit == 0)
+		{
+			routeTimeViolation = 0;
+			routeTimeViolationContribution = 0;
+		}
+		else
+		{
+			// calculate Route Time Violation
+			double totalRouteTimePrevious = 0;
+			double totalRouteTimeNow=0;
+			//first calculate the total route time, after that adjust for the new link
+
+			//depot -> node 0
+			totalRouteTimePrevious +=  problemInstance.costMatrix[depot][depotCount+route.get(0)] ;
+			for(int i=1;i<route.size();i++) 
+			{
+				totalRouteTimePrevious +=  problemInstance.costMatrix[depotCount+route.get(i-1)][depotCount+route.get(i)] ;
+			}
+			totalRouteTimePrevious += problemInstance.costMatrix[depotCount+route.get(route.size()-1)][depot];
+			
+			totalRouteTimeNow += min;
+
+			
+			//
+			if(totalRouteTimeNow<=maxTimeLimit) 
+			{
+				routeTimeViolation = 0;
+				routeTimeViolationContribution = 0;
+			}
+			else
+			{
+				if(totalRouteTimePrevious>maxTimeLimit) //age thekei route time violate korto
+				{
+					routeTimeViolation = totalRouteTimeNow - maxTimeLimit;
+					routeTimeViolation = min;
+				}
+				else // ei client add korar por violation hoise
+				{
+					routeTimeViolation = totalRouteTimeNow - maxTimeLimit;
+					routeTimeViolationContribution = routeTimeViolation;
+				}
+			}
+			
+			
+		}
+		
+		
 		
 		MinimumCostInsertionInfo info = new MinimumCostInsertionInfo();
 		info.increaseInCost = min;
 		info.insertPosition = chosenInsertPosition;
 		info.loadViolation = totalLoadViolation;
 		info.loadViolationContribution = loadViolationContribution;
+		info.routeTimeViolation = routeTimeViolation;
+		info.routeTimeViolationContribution = routeTimeViolationContribution;
 		info.vehicle = vehicle;
 		return info;
 	

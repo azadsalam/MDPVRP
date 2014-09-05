@@ -39,7 +39,7 @@ public class Initialise_ClosestDepot_withNoViolation_GENI_GreedyCut
 		}
 		
 		//create big routes
-		GENI.initialiseBigRouteWithClosestClients(individual);
+		GENI.initialiseBigRouteWithClosestClients(individual,GENI.CLOSEST_DEPOT_WITH_NO_VIOLATION);
 		
 		//now cut the routes and distribute to vehicles
 		for(int period=0; period<problemInstance.periodCount;period++)
@@ -48,10 +48,10 @@ public class Initialise_ClosestDepot_withNoViolation_GENI_GreedyCut
 			{
 
 				greedyCutWithMinimumViolation(individual,period, depot);
-				/*int vehicle = problemInstance.vehiclesUnderThisDepot.get(depot).get(0);
-				ArrayList<Integer >route = routes.get(period).get(vehicle);
+				int vehicle = problemInstance.vehiclesUnderThisDepot.get(depot).get(0);
+				ArrayList<Integer >route = individual.routes.get(period).get(vehicle);
 				route.clear();
-				route.addAll(bigRoutes.get(period).get(depot));*/
+				route.addAll(individual.bigRoutes.get(period).get(depot));
 				
 			}
 		}

@@ -12,7 +12,7 @@ import Main.VRP.ProblemInstance;
   -->> assigns clients to vehicles until no violation
   
   */
-public class Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut {
+public class Initialise_ClosestDepot_withNoLoadViolation_Uniform_cut {
 
 	
 	
@@ -22,12 +22,12 @@ public class Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut {
 		//System.out.println("HERE");
 		//InitialisePeriodAssigmentUniformly.initialise(individual);
 		InitialisePeriodAssigmentWithHeuristic.initialise(individual);
-		bigClosestDepot_withNoLoadViolation_greedy_cut(individual);
+		bigClosestDepot_withNoLoadViolation_uniform_cut(individual);
 		individual.calculateCostAndPenalty();
 	}
 
 
-	public static void bigClosestDepot_withNoLoadViolation_greedy_cut(Individual individual)
+	public static void bigClosestDepot_withNoLoadViolation_uniform_cut(Individual individual)
 	{
 		ProblemInstance problemInstance = Individual.problemInstance;
 		//Assign customer to route
@@ -113,55 +113,7 @@ public class Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut {
 		{
 			for(int depot=0; depot<problemInstance.depotCount;depot++)
 			{
-				greedyCutWithMinimumViolation(individual,period, depot);				
-			}
-		}
-	}
-	
-	public static void greedyCutWithMinimumViolation(Individual individual,int period,int depot) 
-	{
-		ProblemInstance problemInstance = individual.problemInstance;
-		ArrayList<Integer> bigRoute = individual.bigRoutes.get(period).get(depot);		
-		ArrayList<Integer> vehicles = problemInstance.vehiclesUnderThisDepot.get(depot);
-		
-//		double currentCapacity[] = new double[vehicles.size];
-		int currentVehicleIndex = 0;
-		double currentLoad=0;
-		
-		while(!bigRoute.isEmpty() && currentVehicleIndex <vehicles.size())
-		{
-			int vehicle = vehicles.get(currentVehicleIndex);
-			int client = bigRoute.get(0);
-			
-			double thisCapacity = problemInstance.loadCapacity[vehicle];
-			double thisClientDemand = problemInstance.demand[client];
-			
-			double loadViolation = (currentLoad+thisClientDemand) - (thisCapacity);
-			
-			if(loadViolation <= 0) //add this client to this vehicle route, update info
-			{
-				individual.routes.get(period).get(vehicle).add(client);
-				currentLoad += thisClientDemand;
-				bigRoute.remove(0);
-			}
-			else
-			{
-				currentVehicleIndex++;
-				currentLoad=0;
-			}
-		}
-		
-		if(!bigRoute.isEmpty())
-		{
-						
-			//System.out.println("LEFT : "+bigRoute.size());
-			while(!bigRoute.isEmpty())
-			{
-				int client = bigRoute.get(0);
-				int vehicle = vehicles.get(vehicles.size()-1);
-				
-				individual.routes.get(period).get(vehicle).add(client);
-				bigRoute.remove(0);
+				Initialise_ClosestDepot_UniformCut.uniformCut(individual,period, depot);				
 			}
 		}
 	}

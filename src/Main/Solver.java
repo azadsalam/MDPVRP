@@ -38,8 +38,8 @@ public class Solver
 	//public static boolean singleRun = true;
 
 	int aggregate_report_run_size=1;
-	public static boolean writeToExcel=false;
-	public static boolean generateAggregatedReport=true;
+	public static boolean writeToExcel=true;
+	public static boolean generateAggregatedReport=false;
 	public static boolean printEveryGeneration = true;
 	public static boolean printFinalSolutionToFile=true; // output the final population in file
 	public static boolean showViz=false;
@@ -48,6 +48,10 @@ public class Solver
 	public static boolean improveRouteAfterInterRouteOperation= true;
 	
 	public static boolean gatherCrossoverStat=false;
+	
+	
+	public static String[] instanceFiles={"benchmark/MDPVRP/pr10"};
+
 	
 	//all mdpvrp
 	/*public static String[] instanceFiles={"benchmark/MDPVRP/pr01","benchmark/MDPVRP/pr02","benchmark/MDPVRP/pr03"
@@ -82,7 +86,6 @@ public class Solver
 	
 //	public static String[] instanceFiles={"benchmark/MDPVRP/pr01","benchmark/MDPVRP/pr02","benchmark/MDPVRP/pr03"};
 
-	public static String[] instanceFiles={"benchmark/MDPVRP/pr10"};
 	
 	//FOR OUTPUT TRACE //TEST ALGORITHM
 	static public boolean outputTrace = false; //prints solutions cost after each interval, runs multiple times
@@ -95,7 +98,7 @@ public class Solver
 	////////////////
 	static public Visualiser visualiser;
 	
-	public static boolean printProblemInstance= false;
+	public static boolean printProblemInstance= true;
 	public static boolean onTest=false;
 	
 	//public static String singleInputFileName = "benchmark/MDPVRP/pr01";

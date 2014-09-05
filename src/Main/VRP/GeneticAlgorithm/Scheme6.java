@@ -69,7 +69,7 @@ public class Scheme6 implements GeneticAlgorithm
 		survivalSelectionOperator = new RouletteWheelSelection(); 
 
 		localSearch = new SimulatedAnnealing();
-		localImprovement = new LocalImprovementBasedOnFussandElititst(loadPenaltyFactor, routeTimePenaltyFactor, localSearch, POPULATION_SIZE);	
+		localImprovement = new LocalImprovementBasedOnFussandElititst(localSearch);	
 	}
 
 	public Individual run() 
@@ -81,7 +81,7 @@ public class Scheme6 implements GeneticAlgorithm
 		Individual.calculateAssignmentProbalityForDiefferentDepot(problemInstance);
 		Individual.calculateProbalityForDiefferentVehicle(problemInstance);
 		PopulationInitiator.initialisePopulation(population, POPULATION_SIZE, problemInstance);
-		TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor) ;
+	//	TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor) ;
 		
 		
 		int continuosInjection=0; 
@@ -94,7 +94,7 @@ public class Scheme6 implements GeneticAlgorithm
 		{
 			//For collecting min,max,avg
 			Solver.gatherExcelData(population, POPULATION_SIZE, generation);
-			TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor) ;
+			//TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor) ;
 			
 			//  Best individual always reproduces K=1 times + roulette wheel
 			
@@ -143,7 +143,7 @@ public class Scheme6 implements GeneticAlgorithm
 				i++;*/
 			}
 
-			TotalCostCalculator.calculateCostofPopulation(offspringPopulation, 0,NUMBER_OF_OFFSPRING, loadPenaltyFactor, routeTimePenaltyFactor) ;
+		//	TotalCostCalculator.calculateCostofPopulation(offspringPopulation, 0,NUMBER_OF_OFFSPRING, loadPenaltyFactor, routeTimePenaltyFactor) ;
 			Utility.concatPopulation(parentOffspringTotalPopulation, population, offspringPopulation);
 			
 			
@@ -163,7 +163,7 @@ public class Scheme6 implements GeneticAlgorithm
 			localImprovement.initialise(parentOffspringTotalPopulation);
 			localImprovement.run(parentOffspringTotalPopulation);
 			
-			TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
+		//	TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
 			
 			//Preserving the k% best individual + FUSS approach, the n portion of best individuals always make to next generation
 			Utility.sort(parentOffspringTotalPopulation);
@@ -177,7 +177,7 @@ public class Scheme6 implements GeneticAlgorithm
 						parentOffspringTotalPopulation[p] = new Individual(problemInstance);
 						Initialise_ClosestDepot_GENI_GreedyCut.initialise(parentOffspringTotalPopulation[p]);
 						//.initialise_Closest_Depot_Greedy_Cut();
-						TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], loadPenaltyFactor, routeTimePenaltyFactor);
+			//			TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], loadPenaltyFactor, routeTimePenaltyFactor);
 						//parentOffspringTotalPopulation[p].calculateCostAndPenalty();
 						//System.out.println("DUPLICATE");
 					}
@@ -254,20 +254,20 @@ public class Scheme6 implements GeneticAlgorithm
 			
 			Utility.sort(population);	
 			
-			if(Solver.singleRun)
+			/*if(Solver.singleRun)
 			{
 				double tmpSum=0;
 				for(int tmpi=0;tmpi<POPULATION_SIZE;tmpi++)
 					tmpSum += population[tmpi].costWithPenalty;
 				
 				System.out.println("Gen : "+ generation + " Best : "+population[0].costWithPenalty+  " Feasibility : "+ population[0].isFeasible +" Avg : "+(tmpSum/POPULATION_SIZE));
-			}
+			}*/
 			
 			
 		}
 
 
-		TotalCostCalculator.calculateCostofPopulation(population,0,POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
+		//TotalCostCalculator.calculateCostofPopulation(population,0,POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
 		Utility.sort(population);
 		Solver.gatherExcelData(population, POPULATION_SIZE, generation);
 		
