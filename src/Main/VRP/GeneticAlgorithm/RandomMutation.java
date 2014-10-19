@@ -8,9 +8,9 @@ import Main.VRP.Individual.MutationOperators.MutatePeriodAssignment;
 import Main.VRP.Individual.MutationOperators.GreedyVehicleReAssignment;
 import Main.VRP.Individual.MutationOperators.IntraRouteRandomSwap;
 import Main.VRP.Individual.MutationOperators.MutationInterface;
-import Main.VRP.Individual.MutationOperators.OneOneExchange;
-import Main.VRP.Individual.MutationOperators.OneZeroExchange;
-import Main.VRP.Individual.MutationOperators.Or_Opt;
+import Main.VRP.Individual.MutationOperators.InterOneOneExchange;
+import Main.VRP.Individual.MutationOperators.OneZeroExchangePrev;
+import Main.VRP.Individual.MutationOperators.Inter_Or_Opt;
 import Main.VRP.Individual.MutationOperators.PatternImprovement;
 import Main.VRP.Individual.MutationOperators.Three_Opt;
 import Main.VRP.Individual.MutationOperators.Two_Opt;
@@ -32,19 +32,23 @@ public class RandomMutation implements MutationInterface
 	
 	public void applyMutation(Individual offspring)
 	{
-		int rand = 3;
+		int rand = 4;
 		if(offspring.problemInstance.periodCount==1)rand-=1;
 		
 		int selectedMutationOperator = Utility.randomIntExclusive(rand);
 		
 		if(rand==0)
 		{
-			OneZeroExchange.interRouteOneZeroExchange(offspring,false, false);
+			OneZeroExchangePrev.interRouteOneZeroExchange(offspring,false, false);
 		}
 		else if(rand==1)
 		{
 			IntraRouteRandomInsertion.mutate(offspring);
 		}
+		else if(rand==2)
+		{
+			IntraRouteRandomSwap.mutate(offspring);
+		}		
 		else
 		{
 			
@@ -64,7 +68,7 @@ public class RandomMutation implements MutationInterface
 		
 		if(rand==0)
 		{
-			OneZeroExchange.oneZeroExchangeIntra_and_Inter_both(offspring,false, false);
+			OneZeroExchangePrev.oneZeroExchangeIntra_and_Inter_both(offspring,false, false);
 		}
 		else
 		{

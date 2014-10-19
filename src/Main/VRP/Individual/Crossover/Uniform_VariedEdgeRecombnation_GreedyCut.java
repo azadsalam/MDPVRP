@@ -143,9 +143,10 @@ public class Uniform_VariedEdgeRecombnation_GreedyCut
 				//cut the routes
 				RouteUtilities.greedyCutWithMinimumViolation(child, period, depot, bigRoute);
 
+				/*
 				ArrayList<Integer> vehicles = problemInstance.vehiclesUnderThisDepot.get(depot);
 
-				/*for(int v=0;v < vehicles.size(); v++ )
+				for(int v=0;v < vehicles.size(); v++ )
 				{
 					problemInstance.out.println("vehicle :"+vehicles.get(v)+" route: "+ child.routes.get(period).get(vehicles.get(v)));
 				}*/

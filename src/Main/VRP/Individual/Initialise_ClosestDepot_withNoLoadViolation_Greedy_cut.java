@@ -31,8 +31,7 @@ public class Initialise_ClosestDepot_withNoLoadViolation_Greedy_cut {
 	{
 		ProblemInstance problemInstance = Individual.problemInstance;
 		//Assign customer to route
-		boolean[] clientMap = new boolean[problemInstance.customerCount];
-		
+		boolean[] clientMap = new boolean[problemInstance.customerCount];		
 		
 		//create empty lists
 		individual.bigRoutes = new ArrayList<ArrayList<ArrayList<Integer>>>();		

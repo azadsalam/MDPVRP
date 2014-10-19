@@ -7,8 +7,13 @@ import Main.Solver;
 import Main.Utility;
 import Main.VRP.ProblemInstance;
 import Main.VRP.GeneticAlgorithm.GeneticAlgorithm;
+import Main.VRP.GeneticAlgorithm.PopulationInitiator;
 import Main.VRP.GeneticAlgorithm.TotalCostCalculator;
 import Main.VRP.Individual.Individual;
+import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
+import Main.VRP.Individual.RandomInitialisation;
+import Main.VRP.Individual.RandomInitialisationWithCyclicVehicleAssignment;
+import Main.VRP.Individual.Crossover.PIX;
 import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_GreedyCut;
 
 
@@ -16,10 +21,10 @@ public class Tester_Crossover  implements GeneticAlgorithm
 {
 	PrintWriter out; 
 	
-	int POPULATION_SIZE = 10;
-	int NUMBER_OF_OFFSPRING = 10;
-	int NUMBER_OF_GENERATION = 1;
-	
+	public static int POPULATION_SIZE = 10000; 
+	public static int NUMBER_OF_OFFSPRING = 10000;   
+	public static int NUMBER_OF_GENERATION = 1;
+
 	ProblemInstance problemInstance;
 	Individual population[];
 
@@ -60,30 +65,41 @@ public class Tester_Crossover  implements GeneticAlgorithm
 		//problemInstance.print();
 		// INITIALISE POPULATION
 		
-		initialisePopulation();
+//		initialisePopulation();
+		PopulationInitiator.initialisePopulation(population, POPULATION_SIZE, problemInstance);
 		TotalCostCalculator.calculateCostofPopulation(population,0,POPULATION_SIZE, loadPenaltyFactor, routeTimePenaltyFactor);
 		
+		//if(true)return null;
 		
-		Individual child = new Individual(problemInstance);
-		problemInstance.out.println("PARENT 1");
-		population[0].miniPrint();
-		problemInstance.out.println("PARENT 2");
-		population[1].miniPrint();
+		for(int t=0;t<NUMBER_OF_OFFSPRING;t++)
+		{
+			Individual child = new Individual(problemInstance);
+			int one = Utility.randomIntExclusive(POPULATION_SIZE);
+			int two = Utility.randomIntExclusive(POPULATION_SIZE);
+			Individual parent1 = population[one];
+			Individual parent2 = population[two];
+			if(Solver.showViz==true)
+			{
+				Solver.visualiser.drawIndividual(population[one], "Parent1");
+				Solver.visualiser.drawIndividual(population[two], "Parent2");
+			}
+			
+			PIX.crossOver(problemInstance, parent1, parent2, child);
+			
+			if(child.validationTest()==false)
+			{
+				System.out.println("INVALID BACCHA");
+				return null;
+			}
+		}
+		System.out.println("here");
+		//Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, population[0], population[1],child );
+
 		
-		Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, population[0], population[1],child );
 		
-		problemInstance.out.println("Child 1");
-		child.miniPrint();
 		
-		if(child.validationTest()==false)
-			System.out.println("INVALID BACCHA");
 		Utility.sort(population);
 
-		if(Solver.showViz==true)
-		{
-			Solver.visualiser.drawIndividual(population[0], "Best Initial");
-			Solver.visualiser.drawIndividual(population[POPULATION_SIZE-1], "Worst Initial");
-		}
 		return population[0];
 	}
 	
@@ -100,6 +116,12 @@ public class Tester_Crossover  implements GeneticAlgorithm
 		for(int i=0; i<POPULATION_SIZE; i++)
 		{
 			population[i] = new Individual(problemInstance);
+		/*	if(i%2==0)
+				Initialise_ClosestDepot_GENI_GreedyCut.initialise(population[i]);
+			else
+				RandomInitialisationWithCyclicVehicleAssignment.initialiseRandom(population[i]);
+		*/
+			RandomInitialisation.initialiseRandom(population[i]);
 			//population[i].initialise_Closest_Depot_Greedy_Cut();
 			//out.println("Printing Initial individual "+ i +" : \n");
 			TotalCostCalculator.calculateCost(population[i], loadPenaltyFactor, routeTimePenaltyFactor);

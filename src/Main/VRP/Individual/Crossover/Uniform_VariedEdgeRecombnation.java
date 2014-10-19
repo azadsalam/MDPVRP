@@ -1,6 +1,7 @@
 package Main.VRP.Individual.Crossover;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 
 import Main.Solver;
 import Main.Utility;
@@ -65,7 +66,155 @@ public class Uniform_VariedEdgeRecombnation
 
 		for(int period=0;period<problemInstance.periodCount;period++)
 		{			 
-			// Step 1. Assign client to vehicle
+			
+			
+			//for each depot re assign similar routes to same serial number vehicle
+			
+			boolean printn=false;
+
+			for(int depot=0;depot<problemInstance.depotCount;depot++)
+			{
+				if(printn)System.out.println("Period"+period+" Depot: "+depot);
+				
+				ArrayList<Integer> vehiclesUnderThisDepot = problemInstance.vehiclesUnderThisDepot.get(depot);
+				int vehicleUnderThisDepotCount = vehiclesUnderThisDepot.size();
+				
+				
+				if(printn)
+				{	
+					System.out.println("Before\nParent1");
+					for(int j=0;j<vehicleUnderThisDepotCount;j++)
+					{
+						int vehicle = vehiclesUnderThisDepot.get(j);
+						ArrayList<Integer> route = parent1.routes.get(period).get(vehicle);
+						System.out.println("Route "+vehicle+ " : "+route);
+					}
+					
+					System.out.println("Parent2");
+					for(int j=0;j<vehicleUnderThisDepotCount;j++)
+					{
+						int vehicle = vehiclesUnderThisDepot.get(j);
+						ArrayList<Integer> route = parent2.routes.get(period).get(vehicle);
+						System.out.println("Route "+vehicle+ " : "+route);
+					}
+					System.out.println();					
+					
+					System.out.println();						System.out.println();						System.out.println();
+				
+				}
+				for(int i=0;i<vehicleUnderThisDepotCount-1;i++)
+				{
+					int selectedVehicle=-1;
+					int maxMatch = -1;
+					
+					int vehicle1 = vehiclesUnderThisDepot.get(i);
+					ArrayList<Integer> route1 = parent1.routes.get(period).get(vehicle1);
+					int size1 = route1.size();
+					
+					if(printn)
+					{	
+						System.out.println("Vehicle1: "+vehicle1);
+						System.out.println("Route1: "+route1);
+					}
+					
+
+					for(int j=i;j<vehicleUnderThisDepotCount;j++)
+					{
+						int vehicle2 = vehiclesUnderThisDepot.get(j);
+						ArrayList<Integer> route2 = parent2.routes.get(period).get(vehicle2);
+						int size2 = route2.size();
+						
+						HashSet<Integer> union = new HashSet<>();
+						union.addAll(route1);
+						union.addAll(route2);
+						
+						int common = (size1+size2)-union.size();
+						if(common>maxMatch)
+						{
+							maxMatch=common;
+							selectedVehicle = vehicle2;
+						}
+						
+						if(printn)
+						{	
+							System.out.println("Vehicle2: "+vehicle2);
+							System.out.println("Route2: "+route2);
+							System.out.println("Matching: "+common);
+							System.out.println();
+						}
+					
+ 						
+					}
+					
+					if(printn)
+					{
+						System.out.println("Selected Vehicle: "+selectedVehicle);
+						System.out.println();
+						
+						if(i==selectedVehicle)
+						{
+							System.out.println("\n\nafter\nParent1");
+							for(int j=0;j<vehicleUnderThisDepotCount;j++)
+							{
+								int vehicle = vehiclesUnderThisDepot.get(j);
+								ArrayList<Integer> route = parent1.routes.get(period).get(vehicle);
+								System.out.println("Route "+vehicle+ " : "+route);
+							}
+							
+							System.out.println("Parent2");
+							for(int j=0;j<vehicleUnderThisDepotCount;j++)
+							{
+								int vehicle = vehiclesUnderThisDepot.get(j);
+								ArrayList<Integer> route = parent2.routes.get(period).get(vehicle);
+								System.out.println("Route "+vehicle+ " : "+route);
+							}
+							System.out.println();					
+							
+							System.out.println();						System.out.println();						System.out.println();
+						}
+					}
+						
+					//swap the route in i with route selectedVehicle in parent 2
+					if(i==selectedVehicle) continue;
+					
+					ArrayList<Integer> route21 = parent2.routes.get(period).get(vehiclesUnderThisDepot.get(i));
+					ArrayList<Integer> route22 = parent2.routes.get(period).get(selectedVehicle);
+					
+					ArrayList<Integer> temp = new ArrayList<Integer>(route21);
+					
+					route21.clear();
+					route21.addAll(route22);
+					
+					route22.clear();
+					route22.addAll(temp);
+					
+					if(printn)
+					{	
+						System.out.println("\n\nafter\nParent1");
+						for(int j=0;j<vehicleUnderThisDepotCount;j++)
+						{
+							int vehicle = vehiclesUnderThisDepot.get(j);
+							ArrayList<Integer> route = parent1.routes.get(period).get(vehicle);
+							System.out.println("Route "+vehicle+ " : "+route);
+						}
+						
+						System.out.println("Parent2");
+						for(int j=0;j<vehicleUnderThisDepotCount;j++)
+						{
+							int vehicle = vehiclesUnderThisDepot.get(j);
+							ArrayList<Integer> route = parent2.routes.get(period).get(vehicle);
+							System.out.println("Route "+vehicle+ " : "+route);
+						}
+						System.out.println();											
+						System.out.println();						
+						System.out.println();						
+						System.out.println();
+					}
+				
+				}
+			}
+			
+				// Step 1. Assign client to vehicle
 			// Step 2. Create Neighbour/Adjacency List
 			// Step 3. Create Route For Each Vehicle
 			
@@ -90,6 +239,8 @@ public class Uniform_VariedEdgeRecombnation
 			{
 				vehicleAdjacencyList.add(new ArrayList<Integer>());
 			}
+			
+			
 			
 			
 			assignClientToVehicle(child,parent1,parent2,assignedVehicle, numberOfCustomerServed,period);

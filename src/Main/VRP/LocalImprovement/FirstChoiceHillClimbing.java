@@ -15,6 +15,8 @@ public class FirstChoiceHillClimbing extends LocalSearch {
 		// TODO Auto-generated constructor stub
 		
 		this.mutaion = mutation;
+		//System.err.println("FIRST CHOICE HILL CLIMB, RETRY = 7");
+		
 	}
 	@Override
 	public void improve(Individual initialNode, double loadPenaltyFactor, double routeTimePenaltyFactor) 
@@ -26,6 +28,7 @@ public class FirstChoiceHillClimbing extends LocalSearch {
 		
 		Individual node,neighbour;
 		node = new Individual(initialNode);
+		
 		
 		while(retry<7)
 		{			

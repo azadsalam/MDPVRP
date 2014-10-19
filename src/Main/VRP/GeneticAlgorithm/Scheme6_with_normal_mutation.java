@@ -1,6 +1,7 @@
 package Main.VRP.GeneticAlgorithm;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import Main.Solver;
 import Main.Utility;
@@ -11,17 +12,26 @@ import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
 import Main.VRP.Individual.Crossover.CrossoverStatistics;
 import Main.VRP.Individual.Crossover.Crossover_Uniform_Uniform;
+import Main.VRP.Individual.Crossover.PIX;
 import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation;
 import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_GreedyCut;
 import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_with_No_Load_Crossover;
+import Main.VRP.Individual.MutationOperators.CostReducedVehicleReAssignment;
 import Main.VRP.Individual.MutationOperators.GreedyVehicleReAssignment;
+import Main.VRP.Individual.MutationOperators.Inter_2_Opt;
+import Main.VRP.Individual.MutationOperators.Intra_Or_Opt;
 import Main.VRP.Individual.MutationOperators.MutationInterface;
+import Main.VRP.Individual.MutationOperators.Inter_Or_Opt;
+import Main.VRP.Individual.MutationOperators.PatternImprovement;
 import Main.VRP.Individual.MutationOperators.RepairProcedure;
 import Main.VRP.Individual.MutationOperators.Three_Opt;
 import Main.VRP.Individual.MutationOperators.Two_Opt;
 import Main.VRP.LocalImprovement.FirstChoiceHillClimbing;
+import Main.VRP.LocalImprovement.FirstChoiceHillClimbingIMPROVE_ALL_ROUTE;
 import Main.VRP.LocalImprovement.LocalImprovement;
+import Main.VRP.LocalImprovement.LocalImprovementAll;
 import Main.VRP.LocalImprovement.LocalImprovementBasedOnFussandElititst;
+import Main.VRP.LocalImprovement.LocalImprovementBasedOnFussandElititstForKickBoost;
 import Main.VRP.LocalImprovement.LocalSearch;
 import Main.VRP.LocalImprovement.SimulatedAnnealing;
 import Main.VRP.SelectionOperator.FUSS;
@@ -32,10 +42,11 @@ import Main.VRP.SelectionOperator.SelectionOperator;
 public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 {
 	//Algorithm parameters
-	public static int POPULATION_SIZE = 25; 
-	public static int NUMBER_OF_OFFSPRING = 25;   
-	public static int NUMBER_OF_GENERATION = 2000;
+	public static int POPULATION_SIZE = 50; 
+	public static int NUMBER_OF_OFFSPRING = 50;   
+	public static int NUMBER_OF_GENERATION = 500;
 
+	static int INTERVAL_OF_DRAWING = 50;
 	//Algorithm data structures
 	Individual population[];
 	Individual offspringPopulation[];
@@ -56,12 +67,19 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 	//Temporary Variables
 	Individual parent1,parent2;
 	
-
+	ArrayList<Individual> drawnIndividuals;
 	
 	public Scheme6_with_normal_mutation(ProblemInstance problemInstance) 
 	{
-		//System.err.println("in scheme 6");
+		System.err.println("in scheme 6");
+		System.err.println("\n\n TESTING IN INITALISSATION AND IN EDUCATION!!!!!!!");
+		System.err.println("SEED FOR RANDOM GENERATOR: "+Utility.SEED);
+		
+		Solver.HallOfShamePCSize = problemInstance.periodCount * problemInstance.customerCount *1/3;
+		
+		System.err.println("Solver.HallOfShamePCSize = "+Solver.HallOfShamePCSize);
 
+		drawnIndividuals = new ArrayList<>();
 		// TODO Auto-generated constructor stub
 		this.problemInstance = problemInstance;
 		out = problemInstance.out;
@@ -80,7 +98,7 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 
 		MutationInterface neighbourhoodStep = new Neigbour_Steps_Grouped();
 		localSearch = new FirstChoiceHillClimbing(neighbourhoodStep);
-		localImprovement = new LocalImprovementBasedOnFussandElititst(localSearch);	
+		localImprovement = new LocalImprovementAll(localSearch);	
 		
 	}
 
@@ -96,13 +114,8 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 		TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
 		
 		
-		int continuosInjection=0; 
-		//int unImprovedGeneration=0;
-		
-		double previousBest=-1;
-		double bestBeforeInjection=-1;
-		int apply=0;
-		
+		double previousBest=Double.MAX_VALUE;
+		int unimprovedIteration=0;
 		
 		if(Solver.gatherCrossoverStat)
 			CrossoverStatistics.init();
@@ -110,120 +123,83 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 		for( generation=0;generation<NUMBER_OF_GENERATION;generation++)
 		{
 			
-			//For collecting min,max,avg
 			
-			Solver.gatherExcelData(population, POPULATION_SIZE, generation);
-			TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
-			
-			//  Best individual always reproduces K=1 times + roulette wheel			
-			/*if(generation !=0 && generation%Solver.episodeSize==0)
+			/*if(generation%100==0)
 			{
-				//System.out.println("Generation : "+generation);				
-				mutation.updateWeights();
-				//System.out.println();
-				//System.out.println();
-			}
-			*/
 			
-			/*if(generation%20==0 && generation !=0)
-			{
-				
-				System.out.println("APPLYING THREE OPT ON ALL");
-				for (int tmp=0;tmp<POPULATION_SIZE;tmp++)
+				for(int in=0;in<POPULATION_SIZE;in++)
 				{
-					double costBefore = population[tmp].costWithPenalty;
-					Three_Opt.onAllROute(population[tmp]);
-					TotalCostCalculator.calculateCost(population[tmp], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
-					double costAfter = population[tmp].costWithPenalty;
-					System.out.println("Cost before: "+costBefore+" Cost After: "+costAfter);
-					
+					population[in].initialiseVehiclePenaltyMatrix();
 				}
 			}*/
 			
-			//TotalCostCalculator.calculateCostofPopulation(offspringPopulation, start, populationSize, loadPenaltyFactor, routeTimePenaltyFactor)
+			//For collecting min,max,avg			
+			Solver.gatherExcelData(population, POPULATION_SIZE, generation);
+			TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
+			
+			
 			
 			fussSelection.initialise(population, false);
 			rouletteWheelSelection.initialise(population, false);
 			
 			i=0;
-			
-
-			 
+			/* 
 			parent1 = population[0];
 			parent2 = rouletteWheelSelection.getIndividual(population);
+			offspring1 = new Individual(problemInstance);			
 			
-/*			out.println("Parent1 -cost "+parent1.cost+" Load Violation "+parent1.totalLoadViolation+" Route Time VIolation "+parent1.totalRouteTimeViolation);
-			parent1.print();
-			out.println("Parent2 -cost "+parent2.cost+" Load Violation "+parent2.totalLoadViolation+" Route Time VIolation "+parent2.totalRouteTimeViolation);
-			parent2.print();*/
-			
-			offspring1 = new Individual(problemInstance);
-		//	offspring2 = new Individual(problemInstance);
-			
-			Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);			
 //			Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
-			//Uniform_VariedEdgeRecombnation_with_No_Load_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
-			//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);
+			Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);			
 			
-			
-			/*TotalCostCalculator.calculateCost(offspring1, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
-			out.println("Offspring -cost "+offspring1.cost+" Load Violation "+offspring1.totalLoadViolation+" Route Time VIolation "+offspring1.totalRouteTimeViolation);
-			offspring1.print();
-			*/
 			mutation.applyMutation(offspring1);
-			
 			offspringPopulation[i] = offspring1;
 			i++;
-/*			offspringPopulation[i] = offspring2;
-			i++;
-*/			
+
+			*/
+			
+			/*if(Solver.showViz && generation%INTERVAL_OF_DRAWING==0)
+			{
+				Solver.visualiser.drawIndividual(new Individual(parent1), "Parent1 ("+generation +")");
+				Solver.visualiser.drawIndividual(new Individual(parent2), "Parent2 ("+generation +")");
+				Solver.visualiser.drawIndividual(new Individual(offspring1), "Child ("+generation +")");
+			}*/
+			
+			
 			while(i<NUMBER_OF_OFFSPRING)
 			{
 				parent1 = rouletteWheelSelection.getIndividual(population);
-				parent2 = fussSelection.getIndividual(population);
+				parent2 = fussSelection.getIndividual(population);				
+				offspring1 = new Individual(problemInstance);	
+				PIX.crossOver(problemInstance, parent1, parent2, offspring1);
 				
-				offspring1 = new Individual(problemInstance);				
+/*				if(offspring1.validationTest()==false)
+				{
+					
+					System.out.println("Parent1: ");
+					parent1.consolePrint();
+					System.out.println("Parent2: ");
+					parent2.consolePrint();
+					System.out.println("Child: ");
+					offspring1.consolePrint();
+					
+					System.out.println("ERROR\nERROR\nERROR\nIndividual is invalid!!!");
+					System.out.println("\n\nINVALID INDIVIDUAL : \n");
+					
+					return null;
+				}
 				
+				
+*/				
 				//Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
-
-				//Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
+				//Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
 				
-				Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
-				//Uniform_VariedEdgeRecombnation_with_No_Load_Crossover.crossOver_Uniform_VariedEdgeRecombination_cost_greedy(problemInstance, parent1, parent2, offspring1);
-				
-				//Crossover_Uniform_Uniform.crossOver_Uniform_Uniform(problemInstance, parent1, parent2, offspring1, offspring2);
-
 				mutation.applyMutation(offspring1);
-				//mutation.applyMutation(offspring2);
-				
 				offspringPopulation[i] = offspring1;
 				i++;
-				
-				/*offspringPopulation[i] = offspring2;
-				i++;*/
-				
 			}
 
 			TotalCostCalculator.calculateCostofPopulation(offspringPopulation, 0,NUMBER_OF_OFFSPRING, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
 			Utility.concatPopulation(parentOffspringTotalPopulation, population, offspringPopulation);
-			
-			//repair procedure
-			/*for( int p=0;p<parentOffspringTotalPopulation.length;p++)
-			{
-//				TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
-				if(parentOffspringTotalPopulation[p].isFeasible==false)
-				{
-					double rand = Utility.randomDouble(0, 1);
-					if(rand < 0.2) //run repair procedure with 50% probability
-					{
-						//must calculate cost + penalty beofre passing into this procedure
-						//RepairProcedure.repair(parentOffspringTotalPopulation[p]);
-						GreedyVehicleReAssignment.repair(parentOffspringTotalPopulation[p]);
-					}
-				}
-			}*/
-			
-			
 			
 			if(Solver.checkForInvalidity)
 			{
@@ -240,93 +216,83 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				}
 			}
 
-			TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
-						
+			TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, NUMBER_OF_OFFSPRING+POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
+			
 			int coin = Utility.randomIntInclusive(1);
-			//int coin =1;
+			LocalSearch hc=null,sa=null;
 			if(coin==0)
 			{
-				LocalSearch hc = new FirstChoiceHillClimbing(new Neigbour_Steps_Grouped());
+				hc = new FirstChoiceHillClimbing(new Neigbour_Steps_Grouped());
 				LocalImprovement li = new LocalImprovementBasedOnFussandElititst(hc);
 				li.initialise(parentOffspringTotalPopulation);
 				li.run(parentOffspringTotalPopulation);
 			}
 			else
 			{
-				LocalSearch sa = new SimulatedAnnealing(new Neigbour_Steps_Grouped());
+				sa = new SimulatedAnnealing(new Neigbour_Steps_Grouped());
 				LocalImprovement li = new LocalImprovementBasedOnFussandElititst(sa);
 				li.initialise(parentOffspringTotalPopulation);
 				li.run(parentOffspringTotalPopulation);
 			}
 			
 			
-			
-			//testing new thing
-/*			localImprovement.initialise(parentOffspringTotalPopulation);
-			localImprovement.run(parentOffspringTotalPopulation);
-*/			
-			TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
-			
-			
+/*			SimulatedAnnealing hc = new SimulatedAnnealing(new ClientSpecificMutation(),20,0.045,10000,false );
+			LocalImprovement li = new LocalImprovementAll(hc);
+			li.initialise(parentOffspringTotalPopulation);
+			li.run(parentOffspringTotalPopulation);
+
+			TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0, NUMBER_OF_OFFSPRING+POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);			
+			*/
 			
 			//Preserving the k% best individual + FUSS approach, the n portion of best individuals always make to next generation
 			
-			
-			/*
-			Utility.sort(parentOffspringTotalPopulation);
-			for(int p=0;p<parentOffspringTotalPopulation.length-1;p++)
-			{
-				if(parentOffspringTotalPopulation[p].cost == parentOffspringTotalPopulation[p+1].cost)
-				{
-					if(Individual.isDuplicate(problemInstance, parentOffspringTotalPopulation[p], parentOffspringTotalPopulation[p+1]))
-					{
-						//parentOffspringTotalPopulation[p] = new Individual(problemInstance);
-						//Initialise_ClosestDepot_GreedyCut.initialise(parentOffspringTotalPopulation[p]);
-						//TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
-						
-						//parentOffspringTotalPopulation[p].calculateCostAndPenalty();
-						System.out.println("DUPLICATE");
-					}
-				}
-				
-			}*/
 
-/*			int infeasibleCount=0;
-			double totalInfeasibility=0;
+/*			int totalloadViolationCount=0;
+			int totalROuteTimeViolationCOunt=0;
+			double totalLoadViolation=0;
+			double totalRouteTimeViolation = 0;
 			for(int p=0;p<parentOffspringTotalPopulation.length;p++)
 			{
-				if(!parentOffspringTotalPopulation[p].isFeasible)
+				if(!parentOffspringTotalPopulation[p].isFeasible && parentOffspringTotalPopulation[p].totalLoadViolation>0)
 				{
-					infeasibleCount++;
+					totalloadViolationCount++;
 					//add route time violation
-					totalInfeasibility += parentOffspringTotalPopulation[p].totalLoadViolation;
+					totalLoadViolation += parentOffspringTotalPopulation[p].totalLoadViolation ;
+				}
+				if(!parentOffspringTotalPopulation[p].isFeasible && parentOffspringTotalPopulation[p].totalRouteTimeViolation>0)
+				{
+					totalRouteTimeViolation++;
+					//add route time violation
+					totalRouteTimeViolation += parentOffspringTotalPopulation[p].totalRouteTimeViolation ;
 				}
 			}
-			double avgInfeasibility;
+			double avgLoadInfeasibility,avgRouteInfeasibility;
 			
-			if(infeasibleCount>0)
-				avgInfeasibility = totalInfeasibility / infeasibleCount;
+			if(totalloadViolationCount>0)
+				avgLoadInfeasibility = totalLoadViolation / totalloadViolationCount;
 			else
-				avgInfeasibility=0;
+				avgLoadInfeasibility=0;
+			
+			if(totalROuteTimeViolationCOunt>0)
+				avgRouteInfeasibility = totalRouteTimeViolation / totalROuteTimeViolationCOunt;
+			else avgRouteInfeasibility=0;
 			
 			
 			for(int p=0;p<parentOffspringTotalPopulation.length;p++)
 			{
-				//add route time violation
-				if(parentOffspringTotalPopulation[p].totalLoadViolation > avgInfeasibility)
-				{
-					//System.out.println("Before Repair- Cost: "+parentOffspringTotalPopulation[p].cost+" Load Violation: "+parentOffspringTotalPopulation[p].totalLoadViolation);
-					//localSearch.improve(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor*50, Solver.routeTimePenaltyFactor*50);
-					//TotalCostCalculator.calculateCost(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
-					//System.out.println("After Repair- Cost: "+parentOffspringTotalPopulation[p].cost+" Load Violation: "+parentOffspringTotalPopulation[p].totalLoadViolation);
-					//System.out.println();
-					
-				
-					LocalSearch sa = new SimulatedAnnealing(new Neigbour_Steps_Grouped());
-				    sa.improve(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor*50, Solver.routeTimePenaltyFactor*50);
-					
-					
-
+				if( parentOffspringTotalPopulation[p].totalLoadViolation >= avgLoadInfeasibility || parentOffspringTotalPopulation[p].totalRouteTimeViolation >= avgRouteInfeasibility)
+				{					
+					int coin2 = Utility.randomIntInclusive(1);
+					if(coin2==0)
+					{
+						LocalSearch sa2 = new SimulatedAnnealing(new Neigbour_Steps_Grouped());
+						sa2.improve(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor*50, Solver.routeTimePenaltyFactor*50);
+					}
+					else
+					{
+						LocalSearch hc2 = new FirstChoiceHillClimbing(new Neigbour_Steps_Grouped());
+						hc2.improve(parentOffspringTotalPopulation[p], Solver.loadPenaltyFactor*50, Solver.routeTimePenaltyFactor*50);
+					}
 				}
 			}*/
 			
@@ -335,11 +301,8 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 			Utility.sort(parentOffspringTotalPopulation);
 
 			
-			//////////////////////////////////////////////////////////////////////////////////////////
 			int elitistRatio = (int)(POPULATION_SIZE * Solver.ServivorElitistRation);
-			/////////////////////////////////////////////////////////////////////////////////////////
 			
-			//for now pure elitist
 			population[0] = parentOffspringTotalPopulation[0];
 			
 			int index2=1;
@@ -362,52 +325,44 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				population[i]= survivalSelectionOperator.getIndividual(total);
 			}
 			
-			//for now pure elitist - end
+			Utility.sort(population);
 			
-			/**
-			if(unImprovedGeneration>=5)
+	/*		if(population[0].costWithPenalty < previousBest)
 			{
-				unImprovedGeneration=0;
-				
-				int sizeParentOffspring=parentOffspringTotalPopulation.length;
-				int margin=sizeParentOffspring/4;
-					
-				
-				Utility.sort(parentOffspringTotalPopulation);
-				
-				if(bestBeforeInjection == -1)
-				{
-					bestBeforeInjection = population[0].costWithPenalty;
-				}
-				else if(population[0].costWithPenalty == bestBeforeInjection)
-				{
-					//margin = 1;
-				}
-				
-				
-				ProblemInstance pInstance=population[0].problemInstance;
-				for(int noInject=margin;noInject<sizeParentOffspring;noInject++)
-				{
-					Individual newIndividual=new Individual(pInstance);
-					newIndividual.initialise();
-					
-					//double p = Utility.randomDouble(0, 1);
-					//if(p<=0.5)localSearch.improve(newIndividual, loadPenaltyFactor, routeTimePenaltyFactor);
-					
-					parentOffspringTotalPopulation[noInject]=newIndividual;
-				}
-				TotalCostCalculator.calculateCostofPopulation(parentOffspringTotalPopulation, 0,parentOffspringTotalPopulation.length, loadPenaltyFactor, routeTimePenaltyFactor) ;
+				unimprovedIteration=0;
+				previousBest= population[0].costWithPenalty;				
 			}
-			*/
-			/************************ End of population Injection Block **************************/
-
+			else
+			{
+				unimprovedIteration++;
+				//System.out.println("Unimproved: "+unimprovedIteration);
+			}
 			
-			Utility.sort(population);	
+			if(unimprovedIteration>=14)
+			{
+				unimprovedIteration=0;
+				System.out.println("KICK BOOST!");
+				kickBoost();
+				TotalCostCalculator.calculateCostofPopulation(population, 0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor);
+				Utility.sort(population);
+				
+				if(population[0].costWithPenalty < previousBest)
+				{
+					unimprovedIteration=0;
+					previousBest= population[0].costWithPenalty;				
+				}
+
+			}
+*/			
+			
 			int totalFeasible=0;
 			if(Solver.printEveryGeneration)
 			{
-				if(Solver.showViz && generation == 0)
-					Solver.visualiser.drawIndividual(population[0], "Best Gen: "+generation);
+//				drawnIndividuals.add(population[0]);
+				
+				Individual ind = new Individual(population[0]);
+				if(Solver.showViz && generation% INTERVAL_OF_DRAWING==0)
+					Solver.visualiser.drawIndividual(ind, "Best Gen: "+generation);
 				
 				double tmpSum=0;
 				
@@ -464,16 +419,36 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 		if(Solver.gatherCrossoverStat)
 			CrossoverStatistics.print();
 		
+		
+		System.out.format("Three Opt- Apply: %d AvgTimeTaken: %f\n",Three_Opt.apply,Three_Opt.totalSec/Three_Opt.apply);
+		System.out.format("Two Opt- Apply: %d AvgTimeTaken: %f\n",Two_Opt.apply,Two_Opt.totalSec/Two_Opt.apply);
+		System.out.format("Inter Or Opt- Apply: %d AvgTimeTaken: %f\n",Inter_Or_Opt.apply,Inter_Or_Opt.totalSec/Inter_Or_Opt.apply);
+		System.out.format("Intra Or Opt- Apply: %d AvgTimeTaken: %f\n",Intra_Or_Opt.apply,Intra_Or_Opt.totalSec/Intra_Or_Opt.apply);
+		System.out.format("CostReducedVehicleReassignment- Apply: %d AvgTimeTaken: %f\n",CostReducedVehicleReAssignment.apply,CostReducedVehicleReAssignment.totalSec/CostReducedVehicleReAssignment.apply);
+		System.out.format("Pattern Improvement- Apply: %d AvgTimeTaken: %f\n",PatternImprovement.apply,PatternImprovement.totalSec/PatternImprovement.apply);
+		System.out.format("Inter 2opt - Apply: %d AvgTimeTaken: %f\n",Inter_2_Opt.apply,Inter_2_Opt.totalSec/Inter_2_Opt.apply);
+		
+		
+		
 		for(int tmp=0;tmp<POPULATION_SIZE;tmp++)
 		{
 			if(population[tmp].isFeasible) 
 				return population[tmp];
 		}
+		
 		return population[0];
 		
 
 	}
 	
+	public void kickBoost()
+	{
+		
+		LocalImprovement li = new LocalImprovementBasedOnFussandElititstForKickBoost(new FirstChoiceHillClimbingIMPROVE_ALL_ROUTE(new Neigbour_Steps_Grouped()));
+		li.initialise(population);
+		li.run(population);
+
+	}
 	public int getNumberOfGeeration()
 	{
 		return NUMBER_OF_GENERATION;

@@ -6,8 +6,10 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Vector;
 
+import Main.Solver;
 import Main.Utility;
 import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.MutationOperators.GENI;
@@ -15,6 +17,11 @@ import Main.VRP.Individual.MutationOperators.GENI;
 
 public class Individual 
 {
+	//for testing 
+	//public int [][] vehicleReassignmentApplied;
+	
+	public LinkedList<PeriodClientPair> hallOfShamePC;
+	
 	public static int total=0;
 	public static int count=0;
 	public static int max=0;
@@ -29,7 +36,9 @@ public class Individual
 	public boolean isFeasible;
 	public boolean feasibilitySet;
 
+	public double costPerRoute[][];
 	public double loadViolation[][];
+	public double routeTimeViolation[][];
 	public double routeTime[][];
 	public double totalLoadViolation;
 
@@ -529,9 +538,15 @@ public class Individual
 			}
 		}
 
+		costPerRoute = new double[problemInstance.periodCount][problemInstance.vehicleCount];
 		loadViolation = new double[problemInstance.periodCount][problemInstance.vehicleCount];
+		routeTimeViolation = new double[problemInstance.periodCount][problemInstance.vehicleCount];
 		routeTime = new double[problemInstance.periodCount][problemInstance.vehicleCount];
 		visitCombination = new int[problemInstance.customerCount];
+		
+		//
+		//vehicleReassignmentApplied = new int[problemInstance.periodCount][problemInstance.customerCount];
+		hallOfShamePC = new LinkedList<PeriodClientPair>();
 	}
 	
 	/** Makes a copy cat individual.Copy Constructor.
@@ -595,12 +610,36 @@ public class Individual
 		costWithPenalty = original.costWithPenalty;
 
 		//allocate demanViolationMatrix
-
+		
+		costPerRoute = new double[problemInstance.periodCount][problemInstance.vehicleCount];
         loadViolation = new double[problemInstance.periodCount][problemInstance.vehicleCount];
+        routeTimeViolation = new double[problemInstance.periodCount][problemInstance.vehicleCount];
         routeTime = new double[problemInstance.periodCount][problemInstance.vehicleCount];
+    
         
+        
+        //		
+		hallOfShamePC = new LinkedList<PeriodClientPair>();
+
+
+		for (int i=0;i<original.hallOfShamePC.size();i++) 
+		{
+			PeriodClientPair pair = original.hallOfShamePC.get(i);
+			hallOfShamePC.addLast(new PeriodClientPair(pair.period, pair.client));
+		}
+		
 	}
 	
+	/*public void initialiseVehiclePenaltyMatrix()
+	{
+		for(int i=0;i<problemInstance.periodCount;i++)
+		{
+			for(int j=0;j<problemInstance.customerCount;j++)
+			{
+				vehicleReassignmentApplied[i][j] = 0;
+			}
+		}
+	}*/
 	public void copyIndividual(Individual original)
 	{
 		int i,j;
@@ -639,6 +678,15 @@ public class Individual
 
 		cost = original.cost;
 		costWithPenalty = original.costWithPenalty;
+		
+		
+		hallOfShamePC = new LinkedList<PeriodClientPair>();
+
+		for ( i=0;i<original.hallOfShamePC.size();i++) 
+		{
+			PeriodClientPair pair = original.hallOfShamePC.get(i);
+			hallOfShamePC.addLast(new PeriodClientPair(pair.period, pair.client));
+		}
 
 	}
 
@@ -659,10 +707,12 @@ public class Individual
 		{
 			for(int j=0;j<problemInstance.vehicleCount;j++)
 			{
-				tempCost += calculateCost(i,j);
+				costPerRoute[i][j] = calculateCost(i,j);
+				tempCost += costPerRoute[i][j];
                 //calculate the total load violation
                 //Add only when actually the load is violated i.e. violation is positive
                 if(loadViolation[i][j]>0) totalLoadViolation += loadViolation[i][j];
+                if(routeTimeViolation[i][j]>0) totalRouteTimeViolation += routeTimeViolation[i][j];
 			}
 		}
 		
@@ -697,10 +747,9 @@ public class Individual
 
 		double costForPV = 0;
 		double clientDemand=0;
-		double totalRouteTime=0;
 		
 		//First client er service time
-		totalRouteTime = problemInstance.serviceTime[route.get(0)];
+		double totalRouteTime = problemInstance.serviceTime[route.get(0)];
 		clientDemand = problemInstance.demand[route.get(0)];
 		for(int i=1;i<route.size();i++)
 		{
@@ -714,53 +763,80 @@ public class Individual
 			totalRouteTime += problemInstance.serviceTime[clientNode]; //adding service time for that node
             clientDemand += problemInstance.demand[clientNode];        //Caluculate total client demand for corresponding period,vehicle
 			
+            //dont need this , will add cost afterwards to sum of service times
 			//ignoring travelling time for now - for cordeau MDVRP
-			totalRouteTime += problemInstance.travellingTimeMatrix[previous+problemInstance.depotCount][clientNode+problemInstance.depotCount];
+//			totalRouteTime += problemInstance.costMatrix[previous+problemInstance.depotCount][clientNode+problemInstance.depotCount];
 
 		}
 
         costForPV += problemInstance.costMatrix[assignedDepot][route.get(0)+problemInstance.depotCount];
         costForPV += problemInstance.costMatrix[route.get(route.size()-1)+problemInstance.depotCount][assignedDepot];
-
-//  	totalRouteTime += problemInstance.travellingTimeMatrix[assignedDepot][activeStart+problemInstance.depotCount];
-//      totalRouteTime += problemInstance.travellingTimeMatrix[activeEnd+problemInstance.depotCount][assignedDepot];
-    
+        
+        
+        totalRouteTime +=costForPV;
+        
         loadViolation[period][vehicle] = clientDemand - problemInstance.loadCapacity[vehicle];
 
         routeTime[period][vehicle] = totalRouteTime;
         
-		double routeTimeViolation = 0;
+		double thisRouteTimeViolation = 0;
 		
 //		if(Double.compare(0.0, problemInstance.timeConstraintsOfVehicles[period][vehicle])!=0)
 		if(problemInstance.timeConstraintsOfVehicles[period][vehicle] != 0)
 		{
 			//System.out.println(problemInstance.timeConstraintsOfVehicles[period][vehicle]);
-			routeTimeViolation = totalRouteTime - problemInstance.timeConstraintsOfVehicles[period][vehicle] ;
+			thisRouteTimeViolation = routeTime[period][vehicle] - problemInstance.timeConstraintsOfVehicles[period][vehicle] ;
 		}
-		if(routeTimeViolation>0) totalRouteTimeViolation += routeTimeViolation;
+		routeTimeViolation[period][vehicle] = thisRouteTimeViolation;
 
 		return costForPV;
+	}
+	
+	
+	public double calculateCostWithPenalty(int period,int vehicle,  double loadPenaltyFactor, double routeTimePenaltyFactor) 
+	{
+		double cost = calculateCost(period, vehicle);
+		
+		double penalty = Math.max(0, routeTimeViolation[period][vehicle]) * routeTimePenaltyFactor ;
+		penalty += Math.max(0, loadViolation[period][vehicle]) * loadPenaltyFactor;
+		
+		
+		
+		/*if(true)
+		{
+			System.out.println("cost: "+ cost
+					+ " routeTimeViol "+routeTimeViolation[period][vehicle]
+							+" loadViol "+loadViolation[period][vehicle]
+									+" penalty"+penalty);
+		}*/
+		
+		return cost+penalty;
+		
+		
+		
 	}
 	
 	
 	public static double calculateCostOfRouteWithDepotAsANode(ArrayList<Integer> route, int assignedDepot)
 	{
 		int clientNode,previous;
-
+		int DEPOT = problemInstance.customerCount;
         
 		if(route.isEmpty())return 0;
 
 		double costForThisRoute = 0;
 		
 		route.add(route.get(0));
+		
+		//System.out.println("YOU KNOW WHERE I AM: "+route);
 		for(int i=1;i<route.size();i++)
 		{
 			clientNode = route.get(i);
 			previous = route.get(i-1);
 			
-			if(clientNode == GENI.DEPOT)
+			if(clientNode == DEPOT)
 				costForThisRoute += problemInstance.costMatrix[previous+problemInstance.depotCount][assignedDepot];
-			else if(previous == GENI.DEPOT)
+			else if(previous == DEPOT)
 				costForThisRoute +=	problemInstance.costMatrix[assignedDepot][clientNode+problemInstance.depotCount];
 			else
 				costForThisRoute +=	problemInstance.costMatrix[previous+problemInstance.depotCount][clientNode+problemInstance.depotCount];
@@ -819,7 +895,24 @@ public class Individual
 		}
 
 		
-		
+		out.println("Vehicle Reassignment Penalty Matrix");
+		for(int client=0;client<problemInstance.customerCount;client++)
+		{
+			out.format("%4d",client);	
+		}
+		out.println();
+
+		/*for(int period=0;period<problemInstance.periodCount;period++)
+		{
+			
+			for(int client=0;client<problemInstance.customerCount;client++)
+			{
+				out.format("%4d",vehicleReassignmentApplied[period][client]);	
+			}
+			out.println();
+		}*/
+	
+
         // print load violation
 		
 		out.print("LOAD VIOLATION MATRIX : \n");
@@ -837,6 +930,22 @@ public class Individual
             out.println();
         }
         
+        out.print("Route time violation matrix : \n");
+        for( i=0;i<problemInstance.periodCount;i++)
+        {
+            for( j=0;j<problemInstance.vehicleCount;j++)
+            {
+            	if(routeTimeViolation[i][j]>0)
+            	{
+            		out.print("<<<<<< "+routeTimeViolation[i][j]+" >>>>>> ");
+            	}
+            	else
+            		out.print(routeTimeViolation[i][j]+" ");
+            }
+            out.println();
+        }
+        
+        
         out.print("Route Time MATRIX : \n");
         for( i=0;i<problemInstance.periodCount;i++)
         {
@@ -848,7 +957,18 @@ public class Individual
             out.println();
         }
         
-		
+        out.print("Cost Matrix : \n");
+        for( i=0;i<problemInstance.periodCount;i++)
+        {
+            for( j=0;j<problemInstance.vehicleCount;j++)
+            {
+            	
+            	out.print(costPerRoute[i][j]+" ");
+            }
+            out.println();
+        }
+        
+        
         out.println("Is Feasible : "+isFeasible);
         out.println("Total Load Violation : "+totalLoadViolation);    
         //out.println("Total Route Time: "+totalRouteTimeVi)
@@ -858,6 +978,141 @@ public class Individual
 		out.println();
 		
 	}
+	
+
+	public void consolePrint()
+	{
+		//if(problemInstance == null) System.out.println("OUT IS NULL");
+		PrintWriter out = new PrintWriter(System.out, true);
+		int i,j;
+		
+		out.println("PERIOD ASSIGMENT : ");
+		for( j=0;j<problemInstance.customerCount;j++)
+		{
+			out.printf("%3d ",j);	
+		}
+		out.println();
+		
+		for( i=0;i<problemInstance.periodCount;i++)
+		{
+			for( j=0;j<problemInstance.customerCount;j++)
+			{
+				if(periodAssignment[i][j])	out.printf("  1 ");
+				else out.print("  0 ");
+			}
+			out.println();
+		}
+		
+		/*out.println("VISIT COMBINATION :");
+		for(int client=0;client<problemInstance.customerCount;client++)
+		{
+			int comb = visitCombination[client];
+			int[] bitArray = problemInstance.toBinaryArray(comb);
+			
+			out.println("Client "+client+" comb : "+comb+" "+ Arrays.toString(bitArray));
+		}*/
+
+		out.print("Routes : \n");
+		for(int period=0;period<problemInstance.periodCount;period++)
+		{
+			for(int vehicle=0;vehicle<problemInstance.vehicleCount;vehicle++)
+			{
+				out.print("< ");
+				ArrayList<Integer> route = routes.get(period).get(vehicle);
+				for(int clientIndex=0;clientIndex<route.size();clientIndex++)
+				{
+						out.print(route.get(clientIndex)+" ");
+				}
+				out.print("> ");
+			}
+			out.println();
+		}
+
+		
+/*		out.println("Vehicle Reassignment Penalty Matrix");
+		for(int client=0;client<problemInstance.customerCount;client++)
+		{
+			out.format("%4d",client);	
+		}
+		out.println();
+*/
+		/*for(int period=0;period<problemInstance.periodCount;period++)
+		{
+			
+			for(int client=0;client<problemInstance.customerCount;client++)
+			{
+				out.format("%4d",vehicleReassignmentApplied[period][client]);	
+			}
+			out.println();
+		}*/
+	
+
+        // print load violation
+		
+/*		out.print("LOAD VIOLATION MATRIX : \n");
+        for( i=0;i<problemInstance.periodCount;i++)
+        {
+            for( j=0;j<problemInstance.vehicleCount;j++)
+            {
+            	if(loadViolation[i][j]>0)
+            	{
+            		out.print("<<<<<< "+loadViolation[i][j]+" >>>>>> ");
+            	}
+            	else
+            		out.print(loadViolation[i][j]+" ");
+            }
+            out.println();
+        }
+        
+        out.print("Route time violation matrix : \n");
+        for( i=0;i<problemInstance.periodCount;i++)
+        {
+            for( j=0;j<problemInstance.vehicleCount;j++)
+            {
+            	if(routeTimeViolation[i][j]>0)
+            	{
+            		out.print("<<<<<< "+routeTimeViolation[i][j]+" >>>>>> ");
+            	}
+            	else
+            		out.print(routeTimeViolation[i][j]+" ");
+            }
+            out.println();
+        }
+        
+        
+        out.print("Route Time MATRIX : \n");
+        for( i=0;i<problemInstance.periodCount;i++)
+        {
+            for( j=0;j<problemInstance.vehicleCount;j++)
+            {
+            	
+            	out.print(routeTime[i][j]+" ");
+            }
+            out.println();
+        }
+        
+        out.print("Cost Matrix : \n");
+        for( i=0;i<problemInstance.periodCount;i++)
+        {
+            for( j=0;j<problemInstance.vehicleCount;j++)
+            {
+            	
+            	out.print(costPerRoute[i][j]+" ");
+            }
+            out.println();
+        }
+        
+*/        
+        out.println("Is Feasible : "+isFeasible);
+        out.println("Total Load Violation : "+totalLoadViolation);    
+        //out.println("Total Route Time: "+totalRouteTimeVi)
+        out.println("Total route time violation : "+totalRouteTimeViolation);		
+		out.println("Cost : " + cost);
+		out.println("Cost with penalty : "+costWithPenalty);
+		out.println();
+		
+	}
+
 	
 	public void miniPrint()
 	{
@@ -1034,4 +1289,36 @@ public class Individual
 		
 		return true;
 	}
+	
+	public void addToHOS_PC(int period, int client)
+	{
+		PeriodClientPair pc = new PeriodClientPair(period, client);
+		
+		hallOfShamePC.addFirst(pc);
+		
+		while(hallOfShamePC.size()>Solver.HallOfShamePCSize)
+			hallOfShamePC.removeLast();
+	}
+	
+	public boolean isInHallOfShamePC(int period, int client) 
+	{
+		for(PeriodClientPair pair:hallOfShamePC)
+		{
+			if(pair.client==period && pair.client==client) return true;
+		}
+		return false;
+	}
+	
+	public void printHOS_PC() 
+	{
+		System.out.print("Hall Of Shame PC, Size"+ hallOfShamePC.size()+" : ");
+		for (int i=0;i<hallOfShamePC.size();i++) 
+		{
+			PeriodClientPair pair = hallOfShamePC.get(i);
+			System.out.print(pair);
+		}
+		System.out.println();
+
+	}
+	
 }

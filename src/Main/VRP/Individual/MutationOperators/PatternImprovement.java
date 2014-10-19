@@ -14,9 +14,14 @@ import Main.VRP.Individual.RouteUtilities;
 
 public class PatternImprovement {
 
+	public static int apply = 0;	
+	public static double totalSec=0;
+
 	
 	public static void patternImprovement(Individual individual, double loadPenaltyFactor, double routeTimePenaltyFactor, boolean improveResultantRoute)
 	{
+		long start = System.currentTimeMillis();
+		
 		ProblemInstance problemInstance = individual.problemInstance;
 		int chosenClient = Utility.randomIntInclusive(problemInstance.customerCount-1);
 		
@@ -55,6 +60,10 @@ public class PatternImprovement {
 		if(chosenVisitPattern != currentVisitPattern)
 			changeVisitPattern(individual, chosenClient, chosenVisitPattern,loadPenaltyFactor,routeTimePenaltyFactor,improveResultantRoute);
 	
+		long end= System.currentTimeMillis();
+		
+		totalSec += (end-start);
+		apply++;
 	}
 	
 	

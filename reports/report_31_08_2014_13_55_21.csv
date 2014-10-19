@@ -1,8 +1,0 @@
-Report Generation Time , 31_08_2014_13_55_21
-Number Of Generation, Population Size, Offspring Population Size, LoadPenalty, RouteTime Penalty
-1, 500, 1, 10.000000, 10.000000
-
-
-Instance Name, Min, Avg, Max, Feasible 
-benchmark/MDPVRP/pr01, 2067.833329, 2067.833329, 2067.833329, 1 
-benchmark/MDPVRP/pr02, 3504.438276, 3504.438276, 3504.438276, 1 

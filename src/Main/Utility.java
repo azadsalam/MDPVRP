@@ -8,9 +8,11 @@ import Main.VRP.Individual.Individual;
 
 public class Utility 
 {
-	public static Random randomGenerator = new Random(System.currentTimeMillis());
+	public static long SEED = System.currentTimeMillis();
+	//public static long SEED = 10;
+	public static Random randomGenerator = new Random(SEED);
 
-	//public static Random randomGenerator = new Random(0);
+//	public static Random randomGenerator = new Random(0);
 
 //	static Random randomGenerator = new Random(0);
 

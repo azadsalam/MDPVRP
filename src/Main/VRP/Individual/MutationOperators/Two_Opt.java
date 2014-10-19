@@ -8,16 +8,28 @@ import Main.VRP.Individual.RouteUtilities;
 
 public class Two_Opt {
 
+	public static int apply = 0;	
+	public static double totalSec=0;
+	
+	
 	public static void mutateRandomRoute(Individual individual)
 	{
 	//	System.err.println("in two opt");
 		
+		long start = System.currentTimeMillis();
+
 		ProblemInstance problemInstance = individual.problemInstance;
 		int period = Utility.randomIntInclusive(problemInstance.periodCount-1);
 		int vehicle = Utility.randomIntInclusive(problemInstance.vehicleCount-1);
-		mutateRouteBy2_Opt_with_FirstBetterCombination(individual, period, vehicle);
+		//mutateRouteBy2_Opt_with_FirstBetterCombination(individual, period, vehicle);
+		mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
+		
+		long end= System.currentTimeMillis();
+		
+		totalSec += (end-start);
+		apply++;
 	}
-	
+	/*
 	public static void onAllROute(Individual individual)
 	{
 	//	System.err.println("in two opt");
@@ -32,7 +44,7 @@ public class Two_Opt {
 			}
 		}
 	}
-	
+	*/
 	/**
 	 * improves the route by repeatedly applying the first better 2-opt move
 	 * @param individual

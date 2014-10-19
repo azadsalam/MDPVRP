@@ -11,7 +11,7 @@ import Main.VRP.Individual.MutationOperators.IntraRouteRandomInsertion;
 import Main.VRP.Individual.MutationOperators.IntraRouteGreedyInsertion;
 import Main.VRP.Individual.MutationOperators.MutatePeriodAssignment;
 import Main.VRP.Individual.MutationOperators.GreedyVehicleReAssignment;
-import Main.VRP.Individual.MutationOperators.Or_Opt;
+import Main.VRP.Individual.MutationOperators.Inter_Or_Opt;
 import Main.VRP.Individual.MutationOperators.Three_Opt;
 
 

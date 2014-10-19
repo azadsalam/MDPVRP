@@ -16,7 +16,7 @@ public class GreedyVehicleReAssignment
 	
 	/**
 	 * Randomly selects a client,period 
-	 * <br/>Inserts the client in the route, which cause minimum cost increase taking account of load violation
+	 * <br/>Inserts the client in the route, which cause minimum cost increase taking account of load+route time violation
 	 * @param individual
 	 */
 	public static void mutate(Individual individual, double loadPenaltyFactor, double routeTimePenaltyFactor)
@@ -116,7 +116,7 @@ public class GreedyVehicleReAssignment
 	
 
 
-	private static boolean mutateVehicleAssignmentGreedy(Individual individual,int period,int client, double loadPenaltyFactor, double routeTimePenaltyFactor)
+	public static boolean mutateVehicleAssignmentGreedy(Individual individual,int period,int client, double loadPenaltyFactor, double routeTimePenaltyFactor)
 	{
 		//initialising minInfo 
 		MinimumCostInsertionInfo min = new  MinimumCostInsertionInfo();

@@ -19,8 +19,8 @@ public class InitialisePeriodAssigmentWithHeuristic
 	public static void createBigGuidingRoute(ProblemInstance problemInstance)
 	{
 		
-		System.err.println("TESTING IN HEURISTIC PA");
-		//if(savedProblemInstance == problemInstance && bigRouteCreated) return;
+		//System.err.println("TESTING IN HEURISTIC PA, CREATES NEW GUIDING ROUTE EVERY ITERATION");
+		if(savedProblemInstance == problemInstance && bigRouteCreated) return;
 		
 		savedProblemInstance = problemInstance;
 		

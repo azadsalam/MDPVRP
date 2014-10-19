@@ -33,24 +33,26 @@ public class Solver
 {
 		
 	//public static int totalNumberofSingleRun = 1;
-	public static double loadPenaltyFactor = 10;
-	public static double routeTimePenaltyFactor = 10;	
+	public static double loadPenaltyFactor = 100;
+	public static double routeTimePenaltyFactor = 100;	
 	//public static boolean singleRun = true;
 
+	public static int HallOfShamePCSize=-1;
+	
 	int aggregate_report_run_size=1;
-	public static boolean writeToExcel=true;
+	public static boolean writeToExcel=false;
 	public static boolean generateAggregatedReport=false;
 	public static boolean printEveryGeneration = true;
 	public static boolean printFinalSolutionToFile=true; // output the final population in file
 	public static boolean showViz=false;
-	public static boolean checkForInvalidity=false;
+	public static boolean checkForInvalidity=true;
 	
 	public static boolean improveRouteAfterInterRouteOperation= true;
 	
 	public static boolean gatherCrossoverStat=false;
 	
 	
-	public static String[] instanceFiles={"benchmark/MDPVRP/pr10"};
+	public static String[] instanceFiles={"benchmark/MDVRP/pr10"};
 
 	
 	//all mdpvrp
@@ -121,7 +123,6 @@ public class Solver
 	//ProblemInstance problemInstance;
 	public static int mutateRouteOfTwoDiefferentFailed=0;
 
-	//public static double weightingSchemeAlpha=0.7;
 	public static String elitistRatioFileName = "parameters/elitistRatio.txt";
 	public static String weightingSchemeFileName = "parameters/weightingScheme.txt";
 	//public static String elitistRatioOutputFileName = "parameters/elitistRatio/"+singleInputFileName.substring(singleInputFileName.indexOf('/'))+".csv";

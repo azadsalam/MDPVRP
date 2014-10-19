@@ -8,15 +8,19 @@ import Main.Solver;
 import Main.Utility;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.RouteUtilities;
+import Main.VRP.Individual.MutationOperators.CostReducedVehicleReAssignment;
+import Main.VRP.Individual.MutationOperators.GreedyVehicleReAssignmentQuickSelect;
+import Main.VRP.Individual.MutationOperators.Inter_2_Opt;
 import Main.VRP.Individual.MutationOperators.IntraRouteRandomInsertion;
 import Main.VRP.Individual.MutationOperators.IntraRouteGreedyInsertion;
+import Main.VRP.Individual.MutationOperators.Intra_Or_Opt;
 import Main.VRP.Individual.MutationOperators.MutatePeriodAssignment;
 import Main.VRP.Individual.MutationOperators.GreedyVehicleReAssignment;
 import Main.VRP.Individual.MutationOperators.IntraRouteRandomSwap;
 import Main.VRP.Individual.MutationOperators.MutationInterface;
-import Main.VRP.Individual.MutationOperators.OneOneExchange;
-import Main.VRP.Individual.MutationOperators.OneZeroExchange;
-import Main.VRP.Individual.MutationOperators.Or_Opt;
+import Main.VRP.Individual.MutationOperators.InterOneOneExchange;
+import Main.VRP.Individual.MutationOperators.OneZeroExchangePrev;
+import Main.VRP.Individual.MutationOperators.Inter_Or_Opt;
 import Main.VRP.Individual.MutationOperators.PatternImprovement;
 import Main.VRP.Individual.MutationOperators.Three_Opt;
 import Main.VRP.Individual.MutationOperators.Two_Opt;
@@ -98,7 +102,28 @@ public class Neigbour_Steps_Grouped implements MutationInterface
 	
 	public void mutateRoute(Individual offspring)
 	{
-		int totalRouteImprovementOperators = 4;
+		/*int totalRouteImprovementOperators = 4;
+		int selectedMutationOperator = Utility.randomIntExclusive(totalRouteImprovementOperators);
+		if(selectedMutationOperator==0)
+		{
+			//intra       
+			Two_Opt.mutateRandomRoute(offspring);
+		}
+		else if (selectedMutationOperator == 1)
+		{
+			//greedy       //intra	
+			Or_Opt.mutateRandomRoute(offspring);
+		}
+		else if (selectedMutationOperator == 2)
+		{
+			//random //intra // replace it with unstringing - stringing
+			IntraRouteRandomInsertion.mutate(offspring); 
+		}		
+		else if (selectedMutationOperator == 3)
+		{
+			IntraRouteRandomSwap.mutate(offspring);
+		}*/
+		int totalRouteImprovementOperators = 5;
 		int selectedMutationOperator = Utility.randomIntExclusive(totalRouteImprovementOperators);
 		if(selectedMutationOperator==0)
 		{
@@ -109,23 +134,22 @@ public class Neigbour_Steps_Grouped implements MutationInterface
 		{			
 			//greedy       //intra	
 			Three_Opt.mutateRandomRoute(offspring);
+//			IntraRouteRandomSwap.mutate(offspring);
 		}
 		else if (selectedMutationOperator == 2)
 		{
 			//greedy       //intra	
-			Or_Opt.mutateRandomRoute(offspring);
+			Intra_Or_Opt.mutateRandomRoute(offspring);
 		}
 		else if (selectedMutationOperator == 3)
 		{
-			//random //intra 
+			//random //intra // replace it with unstringing - stringing
 			IntraRouteRandomInsertion.mutate(offspring); 
 		}		
-		
-
-		//not used currently
-		//greedy //intra
-		//IntraRouteGreedyInsertion.mutate(offspring);
-
+		else if (selectedMutationOperator == 4)
+		{
+			IntraRouteRandomSwap.mutate(offspring);
+		}
 	}
 	
 	public void mutatePeriodAssignment(Individual offspring, double loadPenaltyFactor, double routeTimePenaltyFactor)
@@ -155,19 +179,28 @@ public class Neigbour_Steps_Grouped implements MutationInterface
 		if (selectedMutationOperator == 0)
 		{
 			//greedy //inter
-			GreedyVehicleReAssignment.mutate(offspring,loadPenaltyFactor,routeTimePenaltyFactor);
+			//GreedyVehicleReAssignment.mutate(offspring,loadPenaltyFactor,routeTimePenaltyFactor);
+			
+			//CostReducedVehicleReAssignment.mutateFI(offspring, loadPenaltyFactor, routeTimePenaltyFactor);
+
+			Inter_Or_Opt.mutate(offspring, loadPenaltyFactor, routeTimePenaltyFactor);
+			//Inter_Or_Opt.mutateSpecificClient(offspring, loadPenaltyFactor, routeTimePenaltyFactor);
+			//Inter_Or_Opt.mutateSpecificClientByCheckingHOS(offspring, loadPenaltyFactor, routeTimePenaltyFactor);
 		}
 		else if (selectedMutationOperator == 1)
 		{
 			//random+greedy       //inter
-			OneOneExchange.mutate(offspring);
+			InterOneOneExchange.mutate(offspring);
 		}		
-		else if (selectedMutationOperator == 1)
+		else if (selectedMutationOperator == 2)
 		{
-			//random //inter
-			OneZeroExchange.interRouteOneZeroExchange(offspring,true,true);
+			//only 1 vehicle per depot // cannot apply 2-opt*
+			if(offspring.problemInstance.vehicleCount == offspring.problemInstance.depotCount)
+				Inter_Or_Opt.mutateSpecificClient(offspring, loadPenaltyFactor, routeTimePenaltyFactor);
+			else
+				Inter_2_Opt.mutate(offspring, loadPenaltyFactor, routeTimePenaltyFactor);
 		}
-
+	
 	}
 	
 	@Override
@@ -176,27 +209,33 @@ public class Neigbour_Steps_Grouped implements MutationInterface
 		
 	}
 
-	
 	public static void improveRoute(Individual individual, int period, int vehicle)
 	{
-		
-		//int coin = Utility.randomIntInclusive(1);
-		//if( coin == 0)
+	//	Two_Opt.mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
+/*
+		int coin = Utility.randomIntInclusive(1);
+		if( coin == 0)
 			Two_Opt.mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
-/*		else if(coin == 1)
+		else if(coin == 1)
+			Or_Opt.mutateRouteBy_Or_Opt_withBestMove(individual, period, vehicle);*/
+		int coin = Utility.randomIntInclusive(2);
+		if( coin == 0)
+			Two_Opt.mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
+		else if(coin == 1)
 			Three_Opt.mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);
 		else if(coin ==2)
-			Or_Opt.mutateRouteBy_Or_Opt_withBestMove(individual, period, vehicle);
-*/		//else
+			Intra_Or_Opt.mutateRouteBy_Or_Opt_withFirstBetterMove_Optimized(individual, period, vehicle);
+		
+		/*//else
 			
-		/*
+		
 		double cost,newCost;
 		do
 		{
 			cost = RouteUtilities.costForThisRoute(individual.problemInstance, individual.routes.get(period).get(vehicle), vehicle);
 			
-		*/	
-			/*int coin = Utility.randomIntInclusive(1);
+			
+			int coin = Utility.randomIntInclusive(1);
 			if(coin==0)
 			{
 				Three_Opt.mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);
@@ -206,10 +245,43 @@ public class Neigbour_Steps_Grouped implements MutationInterface
 			{
 				Or_Opt.mutateRouteBy_Or_Opt_withBestMove(individual, period, vehicle);
 				Three_Opt.mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);			
-			}*/
-		/*	
+			}
+			
 			newCost = RouteUtilities.costForThisRoute(individual.problemInstance, individual.routes.get(period).get(vehicle), vehicle);
 		}while(newCost<cost);*/
+		
+	}
+
+	@Override
+	public void mutateSpecificRoute(Individual individual, int period, int vehicle) {
+		// TODO Auto-generated method stub
+		int totalRouteImprovementOperators = 5;
+		int selectedMutationOperator = Utility.randomIntExclusive(totalRouteImprovementOperators);
+		if(selectedMutationOperator==0)
+		{
+			//intra       
+			Two_Opt.mutateRouteBy2_Opt_with_BestCombination(individual, period, vehicle);
+		}
+		else if (selectedMutationOperator == 1)
+		{			
+			//greedy       //intra	
+			
+			Three_Opt.mutateRouteBy_Three_Opt_with_best_move(individual, period, vehicle);
+		}
+		else if (selectedMutationOperator == 2)
+		{
+			//greedy       //intra	
+			Inter_Or_Opt.mutateRouteBy_Or_Opt_withFirstBetterMove_Optimized(individual, period, vehicle);
+		}
+		else if (selectedMutationOperator == 3)
+		{
+			//random //intra // replace it with unstringing - stringing
+			IntraRouteRandomInsertion.mutateRouteWithInsertion(individual, period, vehicle);
+		}		
+		else if (selectedMutationOperator == 4)
+		{
+			IntraRouteRandomSwap.mutateRouteBySwapping(individual, period, vehicle);
+		}
 		
 	}
 }

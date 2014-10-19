@@ -10,22 +10,25 @@ public class Three_Opt {
 
 	//mdpvrp pr10 -> 
 	
+	public static int apply = 0;	
+	public static double totalSec=0;
+	
 	public static void mutateRandomRoute(Individual individual)
 	{
-		//System.err.println("in 3 opt");
-
+		
+		
+		long start = System.currentTimeMillis();
+		
 		ProblemInstance problemInstance = individual.problemInstance;
-		//boolean success = false;
-		//do
-		//{
-			int period = Utility.randomIntInclusive(problemInstance.periodCount-1);
-			int vehicle = Utility.randomIntInclusive(problemInstance.vehicleCount-1);
+		int period = Utility.randomIntInclusive(problemInstance.periodCount-1);
+		int vehicle = Utility.randomIntInclusive(problemInstance.vehicleCount-1);
 			
-			//mutateRouteBy_Or_Opt(individual, 0, 3);
-			mutateRouteBy_Three_Opt_with_first_better_move(individual, period, vehicle);
+		mutateRouteBy_Three_Opt_with_first_better_move(individual, period, vehicle);
 			
-			//success = mutateRouteBy2_Opt(individual,period, vehicle);
-		//}while(success==false);
+		long end= System.currentTimeMillis();
+		
+		totalSec += (end-start);
+		apply++;
 	}
 	
 	public static void onAllROute(Individual individual)

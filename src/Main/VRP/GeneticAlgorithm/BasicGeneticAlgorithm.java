@@ -106,7 +106,7 @@ public class BasicGeneticAlgorithm implements GeneticAlgorithm
 			Solver.gatherExcelData(population, POPULATION_SIZE, generation);
 			TotalCostCalculator.calculateCostofPopulation(population,0, POPULATION_SIZE, Solver.loadPenaltyFactor, Solver.routeTimePenaltyFactor) ;
 			
-			fussSelection.initialise(population, false);
+			//fussSelection.initialise(population, false);
 			rouletteWheelSelection.initialise(population, false);
 
 			int i = 0; 

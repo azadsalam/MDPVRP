@@ -1,105 +1,106 @@
 package Main.VRP.Individual.MutationOperators;
+
 import java.util.ArrayList;
 
 import Main.Utility;
-import Main.VRP.GeneticAlgorithm.Neigbour_Steps_Grouped;
+import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.Individual;
-import Main.VRP.Individual.MinimumCostInsertionInfo;
 import Main.VRP.Individual.RouteUtilities;
 
 public class OneZeroExchange 
 {
-	static int fail=0;
-	//MDPVRP pr04 5530.768632709098
-	//MDPVRP pr06 7270.992149
-	/**
-	 * Randomly selects a client,period 
-	 * <br/> Inserts the client  in another random route with minimum cost increase heuristics
-	 * <br/> Improvements can be done in selecting the other route..
-	 * <br/> Like - we can select the order the routes according to avg distance from this client and assign this client to the  next/prev route 
-	 * @param individual
-	 */
-	public static void interRouteOneZeroExchange(Individual individual,boolean insertWithMinimumCostIncreaseHeuristic, boolean improveResultantRoute)
+	public static int apply = 0;	
+	public static double totalSec=0;
+
+	
+	public static boolean mutateClientFI(Individual individual, int period, int client, double loadPenaltyFactor, double routeTimePenaltyFactor) 
 	{
-		//vehicle count 2 er kom hole ei operator call korar kono mane e nai
-		if(individual.problemInstance.vehicleCount<2) return;
-
-		int period,client;
-		do
+		apply++;
+	//	System.out.println("1-0 apply"+apply);
+		// TODO Auto-generated method stub
+		ProblemInstance problemInstance = individual.problemInstance;
+		int vehicleCount = problemInstance.vehicleCount;
+				
+		boolean map[] = new boolean[vehicleCount];
+		int checked=0;
+		while(checked<vehicleCount)
 		{
-			period = Utility.randomIntInclusive(individual.problemInstance.periodCount-1);
-			client = Utility.randomIntInclusive(individual.problemInstance.customerCount-1);		
-		}while(individual.periodAssignment[period][client] == false);
+			int vehicle = Utility.randomIntExclusive(vehicleCount);
+			if(map[vehicle])continue;
+			
+			boolean success = oneZeroExchangeGreedyFI(individual, period, vehicle, client,loadPenaltyFactor,routeTimePenaltyFactor);
+			
+			if(success) return true;
+			
+			map[vehicle]=true;
+			checked++;
+		}
+		return false;
 		
-		oneZeroExchange(individual,period,client, insertWithMinimumCostIncreaseHeuristic,improveResultantRoute,false);
-	}
-
-	public static void oneZeroExchangeIntra_and_Inter_both(Individual individual,boolean insertWithMinimumCostIncreaseHeuristic, boolean improveResultantRoute)
-	{
-		//vehicle count 2 er kom hole ei operator call korar kono mane e nai
-		if(individual.problemInstance.vehicleCount<2) return;
-
-		int period,client;
-		do
-		{
-			period = Utility.randomIntInclusive(individual.problemInstance.periodCount-1);
-			client = Utility.randomIntInclusive(individual.problemInstance.customerCount-1);		
-		}while(individual.periodAssignment[period][client] == false);
-		
-		oneZeroExchange(individual,period,client, insertWithMinimumCostIncreaseHeuristic,improveResultantRoute,true);
 	}
 	
-
-	/**
-	 * 
-	 * @param individual
-	 * @param period
-	 * @param client
-	 * @param insertWithMinimumCostIncreaseHeuristic
-	 * @param improveResultantRoute
-	 * @param allowIntra true hole, nijer route or onno jekono route a  swap korbe.. can be inter/ intra
-	 */
-	private static void oneZeroExchange(Individual individual,int period,int client,boolean insertWithMinimumCostIncreaseHeuristic,boolean improveResultantRoute,boolean allowIntra)
+	//tries inserting the client into every possible position in the route selected by <period,vehicle>
+	//if the client is already present in the <period,vehicle> route, then the move is an intra route insertion
+	//else its inter route
+	public static boolean oneZeroExchangeGreedyFI(Individual individual,int period, int vehicle, int client, double loadPenaltyFactor, double routeTimePenaltyFactor) 
 	{
+		ProblemInstance problemInstance = individual.problemInstance;
+		int assignedVehicle = RouteUtilities.assignedVehicle(individual, client, period, problemInstance);		
 		
-		int assigendVehicle = RouteUtilities.assignedVehicle(individual, client, period, individual.problemInstance);
-		int position = individual.routes.get(period).get(assigendVehicle).indexOf(client);
-		
-		//remove the client from old route - with vehicle == assignedVehicle
-		individual.routes.get(period).get(assigendVehicle).remove(position);		
-	
-		int vehicle= Utility.randomIntInclusive(individual.problemInstance.vehicleCount-1);	
-		
-		if(allowIntra == false)
+		//intra
+		if(vehicle == assignedVehicle)
 		{
-			while(vehicle==assigendVehicle)
+			double oldCost = individual.calculateCostWithPenalty(period, assignedVehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+			double newCost;
+			ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
+			int position = route.indexOf(client);
+			route.remove(position);
+			
+			for(int i=0;i<=route.size();i++)
 			{
-				vehicle = Utility.randomIntInclusive(individual.problemInstance.vehicleCount-1);
+				if(i==position) continue;
+				route.add(i,client);
+				newCost = individual.calculateCostWithPenalty(period, vehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+				
+				if(newCost<oldCost) return true; //found improvement -> return
+				
+				//revert route
+				route.remove(i);
 			}
+			route.add(position,client);
+			
 		}
+		else //inter
+		{
+			double newCost1,newCost2;
+			double oldCost1 = individual.calculateCostWithPenalty(period, assignedVehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+			double oldCost2 = individual.calculateCostWithPenalty(period, vehicle, loadPenaltyFactor, routeTimePenaltyFactor);
 
-		ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
 
-		if(insertWithMinimumCostIncreaseHeuristic)
-		{
-			MinimumCostInsertionInfo newInfo= RouteUtilities.minimumCostInsertionPosition(individual.problemInstance, vehicle, client, route);
-			route.add(newInfo.insertPosition, client);
+			ArrayList<Integer> route1 = individual.routes.get(period).get(assignedVehicle);
+			ArrayList<Integer> route2 = individual.routes.get(period).get(vehicle);
+			
+
+			int position = route1.indexOf(client);
+			route1.remove(position);
+			newCost1 = individual.calculateCostWithPenalty(period, assignedVehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+			
+
+			for(int i=0;i<route2.size()+1;i++)
+			{
+				route2.add(i,client);
+				newCost2 = individual.calculateCostWithPenalty(period, vehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+				
+				if(oldCost1+oldCost2 > newCost1+newCost2)
+					return true;
+
+				route2.remove(i);
+			}
+			
+			
+			route1.add(position,client);
 		}
-		else
-		{
-			int size = route.size();
-			int randPos = Utility.randomIntInclusive(size);
-			route.add(randPos,client);
-		}
-		//Mutation_Grouped.mutateRouteAssignment(individual, loadPenaltyFactor, routeTimePenaltyFactor)
-		
-		if(improveResultantRoute)
-		{
-			Neigbour_Steps_Grouped.improveRoute(individual, period, assigendVehicle); //improveOldRoute
-			Neigbour_Steps_Grouped.improveRoute(individual, period, vehicle); //improve new route
-		}
-		
+		return false;
 	}
 	
-
 }

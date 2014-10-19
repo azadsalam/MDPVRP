@@ -20,7 +20,7 @@ public class IntraRouteRandomSwap {
 
 	
 	//returns true if permutation successful
-	private static boolean mutateRouteBySwapping(Individual individual,int period,int vehicle)
+	public static boolean mutateRouteBySwapping(Individual individual,int period,int vehicle)
 	{
 		ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
 

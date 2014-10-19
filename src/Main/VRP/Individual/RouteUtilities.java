@@ -541,4 +541,41 @@ public class RouteUtilities
 		}
 		return selectedDepot ;
 	}
+
+	
+	public static double neighbourDistanceForThisPosition(Individual individual, int period, int vehicle, int position)
+	{
+		ProblemInstance pi = individual.problemInstance;
+		ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
+		int dc = individual.problemInstance.depotCount;
+		int depot = pi.depotAllocation[vehicle];
+		
+		int node = route.get(position);
+		
+		double distance=0;
+		if(position == 0)
+		{
+			// depot -> node0 + node0 -> node 1
+			if(route.size()==1)
+				distance = pi.costMatrix[depot][dc+node] + pi.costMatrix[dc+node][depot];
+			else
+				distance = pi.costMatrix[depot][dc+node] + pi.costMatrix[dc+node][dc + route.get(1)];
+		}
+		
+		else if(position == route.size()-1)
+		{
+			// last node -> last node er ager node + last node -> depot
+			distance = pi.costMatrix[dc + route.get( position - 1 )][dc+node] + pi.costMatrix[dc+node][depot];
+		}
+		
+		else
+		{
+			distance = pi.costMatrix[dc + route.get( position - 1 )][dc+node] + pi.costMatrix[dc+node][dc + route.get( position + 1 )];
+		}
+		
+		return distance;
+	}
+	
+	
+	
 }

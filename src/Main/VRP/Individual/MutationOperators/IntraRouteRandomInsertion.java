@@ -20,7 +20,7 @@ public class IntraRouteRandomInsertion
 		//System.out.println("Period - vehicle :" +period+" "+vehicle);
 	}
 	
-	private static boolean mutateRouteWithInsertion(Individual individual,int period,int vehicle)
+	public static boolean mutateRouteWithInsertion(Individual individual,int period,int vehicle)
 	{
 		ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
 		int size=route.size(); 

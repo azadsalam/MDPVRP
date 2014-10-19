@@ -372,8 +372,9 @@ class OptionsPanel extends JPanel
 		for(int i=0;i<Visualiser.problemInstance.vehicleCount;i++)
 		{
 			vehicleCheckBox = new JCheckBox("Route "+i);
-			vehicleCheckBox.setSelected(true);
+			
 			vehicleCheckBox.addItemListener(new RouteSelectionItemStateChanged());
+			vehicleCheckBox.setSelected(true);
 			routePanel.add(vehicleCheckBox);
 			//Window.surface.repaint();
 		}

@@ -113,8 +113,6 @@ public class GENI
 				
 				ArrayList<Integer> currentRoute = new ArrayList<Integer>();
 				
-				
-				
 				currentRoute.add(clientsClosestToThisDepot.get(0));
 				currentRoute.add(clientsClosestToThisDepot.get(1));				
 				clientsClosestToThisDepot.remove(0);
@@ -152,7 +150,6 @@ public class GENI
 					mciRoute.remove(mciRoute.size()-1);
 					//update
 					soFarBestInsertion = mciRoute;
-					
 					
 					
 					

@@ -1,77 +1,118 @@
 package Main.VRP.Individual.MutationOperators;
+
 import java.util.ArrayList;
 
 import Main.Utility;
-import Main.VRP.GeneticAlgorithm.Neigbour_Steps_Grouped;
+import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.Individual;
-import Main.VRP.Individual.MinimumCostInsertionInfo;
 import Main.VRP.Individual.RouteUtilities;
 
 public class OneOneExchange 
 {
-	static int fail=0;
-	
-	//MDPVRP pr04 5693
-	//MDPVRP pr06 7543.5733568281585
+	public static int apply = 0;	
+	public static double totalSec=0;
 
 	
-	/**
-	 * Randomly selects 2 clients in a period 
-	 * <br/> swap their routes with minimum cost increase heuristics
-	 * <br/> 
-	 * <br/>  
-	 * @param individual
-	 */
-	public static void mutate(Individual individual)
+	public static boolean mutateClientFI(Individual individual, int period, int client, double loadPenaltyFactor, double routeTimePenaltyFactor) 
 	{
-		int retry = 0;
-		int period,vehicle1,vehicle2;
-		boolean success=false;
-		if(individual.problemInstance.vehicleCount<2) return;
-		do
+		apply++;
+	//	System.out.println("1-0 apply"+apply);
+		// TODO Auto-generated method stub
+		ProblemInstance problemInstance = individual.problemInstance;
+		int vehicleCount = problemInstance.vehicleCount;
+				
+		boolean map[] = new boolean[vehicleCount];
+		int checked=0;
+		while(checked<vehicleCount)
 		{
-			period = Utility.randomIntInclusive(individual.problemInstance.periodCount-1);
-			vehicle1 = Utility.randomIntInclusive(individual.problemInstance.vehicleCount-1);
-			vehicle2 = vehicle1;
+			int vehicle = Utility.randomIntExclusive(vehicleCount);
+			if(map[vehicle])continue;
 			
-			while(vehicle1==vehicle2) vehicle2 = Utility.randomIntInclusive(individual.problemInstance.vehicleCount-1);
+			boolean success = oneOneExchangeGreedyFI(individual, period, vehicle, client,loadPenaltyFactor,routeTimePenaltyFactor);
 			
-			success = one_one_exchange_with_min_cost_incrs_heuristic(individual,period,vehicle1,vehicle2);			
-			retry++;
-		}while(success==false  && retry<3);
-		//System.out.println("InsertionMutationGreedy FAILED");
+			if(success) return true;
+			
+			map[vehicle]=true;
+			checked++;
+		}
+		return false;
+		
 	}
 	
-	private static boolean one_one_exchange_with_min_cost_incrs_heuristic(Individual individual,int period,int vehicle1, int vehicle2)
+	//tries inserting the client into every possible position in the route selected by <period,vehicle>
+	//if the client is already present in the <period,vehicle> route, then the move is an intra route insertion
+	//else its inter route
+	public static boolean oneOneExchangeGreedyFI(Individual individual,int period, int vehicle, int client, double loadPenaltyFactor, double routeTimePenaltyFactor) 
 	{
+		ProblemInstance problemInstance = individual.problemInstance;
+		int assignedVehicle = RouteUtilities.assignedVehicle(individual, client, period, problemInstance);		
 		
-		MinimumCostInsertionInfo newInfo;
+		//intra
+		if(vehicle == assignedVehicle)
+		{
+			double oldCost = individual.calculateCostWithPenalty(period, assignedVehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+			double newCost;
+			ArrayList<Integer> route = individual.routes.get(period).get(vehicle);
+			int position = route.indexOf(client);
 			
-		ArrayList<Integer> route1 = individual.routes.get(period).get(vehicle1);
-		ArrayList<Integer> route2 = individual.routes.get(period).get(vehicle2);
-		int size1 = route1.size();
-		int size2 = route2.size();
-		if(size1==0 || size2==0) return false;
-		int client1Index = Utility.randomIntInclusive(size1-1);
-		int client2Index =  Utility.randomIntInclusive(size2-1);
-		int client1 = route1.get(client1Index);
-		int client2 = route2.get(client2Index);
-		
-		route1.remove(client1Index);
-		route2.remove(client2Index);
-		
-		newInfo= RouteUtilities.minimumCostInsertionPosition(Individual.problemInstance, vehicle2, client1, route2);
-		route2.add(newInfo.insertPosition, client1);
-		
-		newInfo= RouteUtilities.minimumCostInsertionPosition(Individual.problemInstance, vehicle1, client2, route1);
-		route1.add(newInfo.insertPosition, client2);
-		
-		Neigbour_Steps_Grouped.improveRoute(individual, period, vehicle1);// improve route 1
-		Neigbour_Steps_Grouped.improveRoute(individual, period, vehicle2);// improve route 2
-		
-		//individual.problemInstance.out.println("Period : "+period+" vehicle : "+vehicle+" selected Client : "+selectedClient+" "+ " new Position : "+newIndex);
-		return true;
+			for(int i=0;i<route.size();i++)
+			{
+				if(i==position) continue;
+				
+				int otherClient = route.get(i);
+				
+				route.set(i, client);
+				route.set(position, otherClient);
+				
+
+				newCost = individual.calculateCostWithPenalty(period, vehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+				
+				if(newCost<oldCost) return true; //found improvement -> return
+				
+				route.set(i, otherClient);
+				route.set(position, client);
+				
+				//revert changes
+			}
+			
+		}
+		else //inter
+		{
+			double newCost1,newCost2;
+			double oldCost1 = individual.calculateCostWithPenalty(period, assignedVehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+			double oldCost2 = individual.calculateCostWithPenalty(period, vehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+
+
+			ArrayList<Integer> route1 = individual.routes.get(period).get(assignedVehicle);
+			ArrayList<Integer> route2 = individual.routes.get(period).get(vehicle);
+			
+
+			int position = route1.indexOf(client);
+			
+
+			for(int i=0;i<route2.size();i++)
+			{
+				int otherClient = route2.get(i);
+
+				route2.set(i, client);
+				route1.set(position, otherClient);
+				
+				
+				newCost1 = individual.calculateCostWithPenalty(period, assignedVehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+				newCost2 = individual.calculateCostWithPenalty(period, vehicle, loadPenaltyFactor, routeTimePenaltyFactor);
+				
+				if(oldCost1+oldCost2 > newCost1+newCost2)
+					return true;
+
+				
+				route2.set(i, otherClient);
+				route1.set(position, client);
+				
+			}
+			
+			
+		}
+		return false;
 	}
 	
-
 }
