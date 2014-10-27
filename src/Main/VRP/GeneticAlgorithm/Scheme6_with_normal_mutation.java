@@ -12,6 +12,7 @@ import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.Initialise_ClosestDepot_GENI_GreedyCut;
 import Main.VRP.Individual.Crossover.CrossoverStatistics;
 import Main.VRP.Individual.Crossover.Crossover_Uniform_Uniform;
+import Main.VRP.Individual.Crossover.IIC;
 import Main.VRP.Individual.Crossover.PIX;
 import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation;
 import Main.VRP.Individual.Crossover.Uniform_VariedEdgeRecombnation_GreedyCut;
@@ -42,11 +43,11 @@ import Main.VRP.SelectionOperator.SelectionOperator;
 public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 {
 	//Algorithm parameters
-	public static int POPULATION_SIZE = 50; 
-	public static int NUMBER_OF_OFFSPRING = 50;   
-	public static int NUMBER_OF_GENERATION = 500;
+	public static int POPULATION_SIZE = 20; 
+	public static int NUMBER_OF_OFFSPRING = 20;   
+	public static int NUMBER_OF_GENERATION = 200;
 
-	static int INTERVAL_OF_DRAWING = 50;
+	static int INTERVAL_OF_DRAWING = 25;
 	//Algorithm data structures
 	Individual population[];
 	Individual offspringPopulation[];
@@ -143,26 +144,25 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 			rouletteWheelSelection.initialise(population, false);
 			
 			i=0;
-			/* 
+			 
 			parent1 = population[0];
 			parent2 = rouletteWheelSelection.getIndividual(population);
 			offspring1 = new Individual(problemInstance);			
 			
 //			Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
-			Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);			
+		//	Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);			
 			
+			IIC.crossOver(problemInstance, parent1, parent2, offspring1);
 			mutation.applyMutation(offspring1);
 			offspringPopulation[i] = offspring1;
 			i++;
-
-			*/
 			
-			/*if(Solver.showViz && generation%INTERVAL_OF_DRAWING==0)
+			if(Solver.showViz && generation%INTERVAL_OF_DRAWING==0)
 			{
 				Solver.visualiser.drawIndividual(new Individual(parent1), "Parent1 ("+generation +")");
 				Solver.visualiser.drawIndividual(new Individual(parent2), "Parent2 ("+generation +")");
 				Solver.visualiser.drawIndividual(new Individual(offspring1), "Child ("+generation +")");
-			}*/
+			}
 			
 			
 			while(i<NUMBER_OF_OFFSPRING)
@@ -170,8 +170,19 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				parent1 = rouletteWheelSelection.getIndividual(population);
 				parent2 = fussSelection.getIndividual(population);				
 				offspring1 = new Individual(problemInstance);	
-				PIX.crossOver(problemInstance, parent1, parent2, offspring1);
+				IIC.crossOver(problemInstance, parent1, parent2, offspring1);
+				//Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
 				
+				if(Solver.showViz && generation% INTERVAL_OF_DRAWING==0)
+				{
+					double rand = Utility.randomDouble(0, 1);
+					/*if(rand<0.1 && generation == 10)
+					{
+						Solver.visualiser.drawIndividual(new Individual(parent1), "parent1 "+parent1);
+						Solver.visualiser.drawIndividual(new Individual(parent2), "parent2 "+parent2);
+						Solver.visualiser.drawIndividual(new Individual(offspring1), "child "+offspring1);
+					}*/
+				}
 /*				if(offspring1.validationTest()==false)
 				{
 					
@@ -189,9 +200,12 @@ public class Scheme6_with_normal_mutation implements GeneticAlgorithm
 				}
 				
 				
+				
 */				
 				//Uniform_VariedEdgeRecombnation_GreedyCut.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
 				//Uniform_VariedEdgeRecombnation.crossOver_Uniform_VariedEdgeRecombination(problemInstance, parent1, parent2, offspring1);
+				
+				
 				
 				mutation.applyMutation(offspring1);
 				offspringPopulation[i] = offspring1;

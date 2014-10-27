@@ -31,10 +31,11 @@ import Main.VRP.LocalImprovement.SimulatedAnnealing;
 
 public class Solver 
 {
-		
+
+	public static String errorString="";
 	//public static int totalNumberofSingleRun = 1;
-	public static double loadPenaltyFactor = 100;
-	public static double routeTimePenaltyFactor = 100;	
+	public static double loadPenaltyFactor = 1000;
+	public static double routeTimePenaltyFactor = 1000;	
 	//public static boolean singleRun = true;
 
 	public static int HallOfShamePCSize=-1;
@@ -52,7 +53,7 @@ public class Solver
 	public static boolean gatherCrossoverStat=false;
 	
 	
-	public static String[] instanceFiles={"benchmark/MDVRP/pr10"};
+	public static String[] instanceFiles={"benchmark/MDPVRP/pr03"};
 
 	
 	//all mdpvrp

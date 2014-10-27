@@ -1,6 +1,7 @@
 package Main.VRP.GeneticAlgorithm;
 import java.util.Random;
 
+import Main.Solver;
 import Main.VRP.ProblemInstance;
 import Main.VRP.Individual.Individual;
 import Main.VRP.Individual.Initialise_ClosestDepotWithGreedyCut;
@@ -42,9 +43,12 @@ public class PopulationInitiator
 			
 			//10427 ->pr10
 			//with all 3
-			if(i%2 == 0)
+			
+			Solver.errorString += "TESTING HERE IN INITIALISATION";
+			
+/*			if(i%2 == 0)
 				RandomInitialisationWithCyclicVehicleAssignment.initialiseRandom(population[i]);
-			else
+			else*/
 				Initialise_ClosestDepot_withNoLoadViolation_Uniform_cut.initiialise(population[i]);
 			
 			
